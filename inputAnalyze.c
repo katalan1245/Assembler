@@ -94,7 +94,7 @@ int findOpcode(char *str) {
         return 0;
     if(!strcmp(oper,"cmp"))
         return 1;
-    if(!strcmp(oper,"add") || !strcmp(oper,sub))
+    if(!strcmp(oper,"add") || !strcmp(oper,"sub"))
         return 2;
     if(!strcmp(oper,"lea"))
         return 4;
