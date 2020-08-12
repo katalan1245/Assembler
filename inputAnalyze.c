@@ -3,40 +3,43 @@
 
 /* NEED TO ADD THE HANDLE FUNCTIONS */
 
-Status mini_main(FILE *f) {
+Status mini_main() { /* FILE *f */
     char line[82];
     Statement state;
-    fgets(line,82,f);
+    fgets(line,82,stdin);
     strcpy(line,strip(line));
     lineCounter++;
 
     state = firstCheck(line);
+    printf("%s\n",line);
+    printf("%d",state);
+    /*
     if(state == Empty || state == Comment)
         return Valid;
     if(state == Instruction)
         return handleInstruction(line);
     else
         return handleDirective(line);
+    */
+   return Valid;
 }
 
+/* return the statement of the sentence or invalid*/
 Statement firstCheck(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
-    if(str[strlen(str)-1] != '\n')
+    if(str[strlen(str)-1] != '\n') /* line too long */
         return Invalid;
-    if(str[0] == ';')
+    if(str[0] == ';') /* first char is ; */
         return Comment;
-    if(str[0] == '\0')
+    if(str[0] == '\0') /* first char is \0 */
         return Empty;
-    if(split(str,":",arr) == FULL_CELL) {
-        size_t len1,len2;
+    if(split(str,".",arr) == NON_EMPTY_CELL) { 
+        /* check if there is . in the str, and if it comes before " */
+        size_t len1, len2;
         len1 = strlen(arr[IMPORTANT]);
         split(str,"\"",arr);
         len2 = strlen(arr[IMPORTANT]);
-        if((len1 < len2) /* if : comes before " or one of this word exist in the line */
-            || strstr(arr[IMPORTANT],".data")
-            || strstr(arr[IMPORTANT],".string")
-            || strstr(arr[IMPORTANT],".entry")
-            || strstr(arr[IMPORTANT],".extern"))
+        if(len1 < len2)
             return Instruction;
     }
     return Directive;
@@ -73,18 +76,19 @@ int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
     char strCopy[1000];
 
     strcpy(strCopy, str);
-    tok = strtok(strCopy, delim);
+    tok = strtok(strCopy, delim); /* look for the first token */
     if (strlen(tok) == strlen(str)) {
         strcpy(arr[0], str);
         strcpy(arr[1], "");
         return EMPTY_CELL;
     }
-    tok = strtok(NULL, delim);
+    tok = strtok(NULL, delim); /* look for the next token */
     strcpy(arr[0], strCopy);
-    strcpy(arr[1], (str + strlen(strCopy) + 1));
-    return FULL_CELL;
+    strcpy(arr[1], (str + strlen(strCopy) + 1)); /* we want the rest of the string, and not until the next token */
+    return NON_EMPTY_CELL;
 }
 
+/* returns the opcode of the str, -1 if not an opcode */
 int findOpcode(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
     char oper[LINE_LEN];
@@ -113,6 +117,7 @@ int findOpcode(char *str) {
     return -1;
 }
 
+/* return the register number of str, -1 if not a register */
 int findReg(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
     char oper[LINE_LEN];
@@ -138,6 +143,7 @@ int findReg(char *str) {
     return -1;
 }
 
+/* return the funct of str, 0 if there is no funct */
 int findFunct(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
     char oper[LINE_LEN];
@@ -153,3 +159,17 @@ int findFunct(char *str) {
         return 4;
     return 0;
 }
+
+/* return the index of str in the array arr, -1 if it doesn't appear*/
+/* CHANGE LATER
+int strInArray(char *str, char arr[STRING_PARTS][LINE_LEN]) {
+    size_t len;
+    int i;
+    len = sizeof(arr)/sizeof(arr[0]);
+
+    for(i=0;i<len;i++) {
+        if(!strcmp(str,arr[i]))
+            return i;
+    }
+    return -1;
+} */

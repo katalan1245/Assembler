@@ -32,11 +32,15 @@ typedef union {
     } bits;
 } Word;
 
+
 extern int IC;
 extern int DC;
 extern int lineCounter;
-extern char whitespace[5];
+extern char whitespace[7];
 extern Bool foundError;
 
 typedef enum {Empty, Comment, Directive, Instruction, Invalid} Statement;
 typedef enum {LineTooLong, UnknownOperation, Valid} Status;
+
+
+Status mini_main();
