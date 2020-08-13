@@ -2,7 +2,8 @@
 
 static Bool hasSymbol;
 static symbolTableNodePtr symbolHptr;
-static wordNodePtr wordHptr;
+static wordNodePtr dataHptr;
+static wordNodePtr codeHptr;
 
 Status firstPass(FILE *f) {
     char *str = (char*) malloc(LINE_LEN);
@@ -49,7 +50,7 @@ Status handleInstruction(char *line) {
             return NeedlessOperands;
         else { /* we can write the word */
             fillWordCode(&word,word.data.code.opcode,0,0,0,0,0,1,0,0);
-            addWordToImage(wordHptr, word);
+            addWordToImage(codeHptr, word);
         }
 }
 
