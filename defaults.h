@@ -22,8 +22,32 @@
 
 typedef enum {False, True} Bool;
 
+typedef struct {
+    union {
+        struct {
+            unsigned int E:ARE_FIELD_LEN;
+            unsigned int R:ARE_FIELD_LEN;
+            unsigned int A:ARE_FIELD_LEN;
+            unsigned int funct:FUNCT_LEN;
+            unsigned int destReg:DEST_REG_LEN;
+            unsigned int destAdd:DEST_ADD_LEN;
+            unsigned int srcReg:SRC_REG_LEN;
+            unsigned int srcAdd:SRC_ADD_LEN;
+            unsigned int opcode:OPCODE_LEN;
+        } code;
+        struct {
+            long address:WORD_LEN;
+            Bool useARE;
+        } wordData;
+    } data;
+    enum {Code, Address} type;
+} Word;
+
+
+/*
 typedef union {
-    unsigned index;
+    unsigned int index;
+    unsigned int address:WORD_LEN;
     struct {
         unsigned int E:ARE_FIELD_LEN;
         unsigned int R:ARE_FIELD_LEN;
@@ -34,8 +58,8 @@ typedef union {
         unsigned int srcReg:SRC_REG_LEN;
         unsigned int srcAdd:SRC_ADD_LEN;
         unsigned int opcode:OPCODE_LEN;
-    } bits;
-} Word;
+    } code;
+} Word; */
 
 extern int IC;
 extern int DC;
@@ -43,8 +67,10 @@ extern int lineCounter;
 extern Bool foundError; 
 extern char whitespace[7];
 
+typedef enum {A=4,R=2,E=1} ARE;
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
-typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,Valid=100} Status;
+typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
+              NeedlessOperands=3, Valid=100} Status;
 
 
 

@@ -32,7 +32,7 @@ Statement firstCheck(char *str) {
         return Empty;
     if(str[0] == ';') /* first char is ; */
         return Comment;
-    if(isValidToken(".",str))
+    if(validToken(".",str))
         return Directive;
     return Instruction;
 }
@@ -160,15 +160,10 @@ int findFunct(char *str) {
     return 0;
 }
 
-/* return the symbol, NULL if there is no symbol */
-char *findSymbol(char *str) {
-    return ValidToken(":",str);
-}
-
 /* return NULL if the token is not valid, or the string if this is a real token */
-char *ValidToken(char *tok, char *str) {
+char *validToken(char *tok, char *str) {
     char arr[STRING_PARTS][LINE_LEN];
-    char tempStr[LINE_LEN];
+    char *tempStr = (char*) malloc(LINE_LEN);
     int del;
     size_t len1,len2;
 
@@ -182,16 +177,4 @@ char *ValidToken(char *tok, char *str) {
     if(len1 > len2)
         return NULL;
     return tempStr;
-}
-
-Bool isExternal(char *str, int symbolLen) {
-    char *strCopy = (char *) malloc(LINE_LEN);
-    strCopy += symbolLen;
-    strcpy(strCopy,strip(strCopy));
-    if(!strncmp(strCopy,".extern",7)) {
-        free(strCopy);
-        return True;
-    }
-    free(strCopy);
-    return False;
 }

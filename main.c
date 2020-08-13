@@ -5,8 +5,6 @@ Bool foundError = False;
 int IC = 100;
 int DC = 0;
 int lineCounter = 0;
-symbolTableNodePtr hptr;
-
 
 int main(int argc, char *argv[]) {
     /*Status status;*/
@@ -18,7 +16,7 @@ int main(int argc, char *argv[]) {
     
 /*
     for(i=1;i<argc;i++) {
-        FILE *f = fopen(argv[i],"r");
+        FILE *f = fopen(strcat(argv[i],".as"),"r");
         lineCounter = 0;
 
         if(!f) {

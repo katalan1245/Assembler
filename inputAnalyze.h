@@ -16,6 +16,6 @@ int findOpcode(char*);
 int findReg(char*);
 int findFunct(char*);
 int strInArray(char*,char[STRING_PARTS][LINE_LEN]);
-char *findSymbol(char*);
+char *validToken(char*,char*);
 
 #endif

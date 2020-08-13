@@ -18,7 +18,7 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
     strcpy(t->symbol, node.symbol);
     t->value = node.value;
     t->location = node.location;
-    t->isExternal = node.isExternal;
+    t->type = node.type;
 
     p1 = *hptr;
     p2 = NULL;
@@ -39,18 +39,13 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
 }
 
 void freeList(symbolTableNodePtr *hptr) {
-    symbolTableNodePtr p;
-
     while (*hptr) {
-        p = *hptr;
         *hptr = (*hptr)->next;
-        free(p);
     }
 }
 
 // need to fix
 void removeFirstNode(symbolTableNodePtr *hptr) {
-    symbolTableNodePtr p;
 
     if(!hptr) {
         printf("Cannot Remove From Empty List!");
