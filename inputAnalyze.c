@@ -2,17 +2,18 @@
 #include "inputAnalyze.h"
 
 /* NEED TO ADD THE HANDLE FUNCTIONS */
+static char whitespace[7] = " \t\n\v\f\r";
+
 
 Status mini_main() { /* FILE *f */
     char line[82];
     Statement state;
+    
     fgets(line,82,stdin);
-    strcpy(line,strip(line));
     lineCounter++;
 
     state = firstCheck(line);
-    printf("%s\n",line);
-    printf("%d",state);
+    printf("%d\n",state);
     /*
     if(state == Empty || state == Comment)
         return Valid;
@@ -27,18 +28,19 @@ Status mini_main() { /* FILE *f */
 /* return the statement of the sentence or invalid*/
 Statement firstCheck(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
-    if(str[strlen(str)-1] != '\n') /* line too long */
+    if(str[strlen(str)-1] != '\n') /* line too long */ 
         return Invalid;
+    if(str[0] == '\n' || str[0] == '\0') /* first char is \0 */
+        return Empty;
     if(str[0] == ';') /* first char is ; */
         return Comment;
-    if(str[0] == '\0') /* first char is \0 */
-        return Empty;
     if(split(str,".",arr) == NON_EMPTY_CELL) { 
         /* check if there is . in the str, and if it comes before " */
         size_t len1, len2;
         len1 = strlen(arr[IMPORTANT]);
         split(str,"\"",arr);
         len2 = strlen(arr[IMPORTANT]);
+        printf("len1-%ld,len2-%ld\n",len1,len2);
         if(len1 < len2)
             return Instruction;
     }

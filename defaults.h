@@ -36,10 +36,9 @@ typedef union {
 extern int IC;
 extern int DC;
 extern int lineCounter;
-extern char whitespace[7];
-extern Bool foundError;
+extern Bool foundError; 
 
-typedef enum {Empty, Comment, Directive, Instruction, Invalid} Statement;
+typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
 typedef enum {LineTooLong, UnknownOperation, Valid} Status;
 
 
