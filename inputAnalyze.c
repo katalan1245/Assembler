@@ -1,19 +1,16 @@
 #include "defaults.h"
 #include "inputAnalyze.h"
 
-/* NEED TO ADD THE HANDLE FUNCTIONS */
-static char whitespace[7] = " \t\n\v\f\r";
+char whitespace[7] = " \t\n\v\f\r";
 
-
-Status mini_main() { /* FILE *f */
-    char line[82];
+Statement getLine(FILE *f,char **str) {
     Statement state;
     
-    fgets(line,82,stdin);
+    fgets(*str,LINE_LEN,f);
     lineCounter++;
 
-    state = firstCheck(line);
-    printf("%d\n",state);
+    state = firstCheck(*str);
+    return state;
     /*
     if(state == Empty || state == Comment)
         return Valid;
@@ -21,37 +18,29 @@ Status mini_main() { /* FILE *f */
         return handleInstruction(line);
     else
         return handleDirective(line);
-    */
-   return Valid;
+    
+   return Valid; */
 }
 
 /* return the statement of the sentence or invalid*/
 Statement firstCheck(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
+    memset(arr,0,sizeof(arr[0][0])*STRING_PARTS*LINE_LEN);
     if(str[strlen(str)-1] != '\n') /* line too long */ 
         return Invalid;
     if(str[0] == '\n' || str[0] == '\0') /* first char is \0 */
         return Empty;
     if(str[0] == ';') /* first char is ; */
         return Comment;
-    if(split(str,".",arr) == NON_EMPTY_CELL) { 
-        /* check if there is . in the str, and if it comes before " */
-        size_t len1, len2;
-        len1 = strlen(arr[IMPORTANT]);
-        split(str,"\"",arr);
-        len2 = strlen(arr[IMPORTANT]);
-        printf("len1-%ld,len2-%ld\n",len1,len2);
-        if(len1 < len2)
-            return Instruction;
-    }
-    return Directive;
+    if(isValidToken(".",str))
+        return Directive;
+    return Instruction;
 }
 
 /* strip the string str from whitespaces and return the stripped string */
 char *strip(char *str) {
     size_t size;
     char *end;
-
     /* if string empty, return it */
     size = strlen(str) - 1;
     if (!size)
@@ -76,18 +65,27 @@ char *strip(char *str) {
 int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
     char *tok;
     char strCopy[1000];
+    int i;
 
     strcpy(strCopy, str);
+    for(i=0;i<strlen(delim);i++) {
+        if(str[0] == delim[i]) {
+            strcpy(arr[IMPORTANT],"");
+            strcpy(arr[REST],strCopy);
+            return DELIM_EXIST;
+        }
+    }
+
     tok = strtok(strCopy, delim); /* look for the first token */
     if (strlen(tok) == strlen(str)) {
         strcpy(arr[0], str);
         strcpy(arr[1], "");
-        return EMPTY_CELL;
+        return DELIM_NOT_EXIST;
     }
     tok = strtok(NULL, delim); /* look for the next token */
     strcpy(arr[0], strCopy);
     strcpy(arr[1], (str + strlen(strCopy) + 1)); /* we want the rest of the string, and not until the next token */
-    return NON_EMPTY_CELL;
+    return DELIM_EXIST;
 }
 
 /* returns the opcode of the str, -1 if not an opcode */
@@ -162,16 +160,38 @@ int findFunct(char *str) {
     return 0;
 }
 
-/* return the index of str in the array arr, -1 if it doesn't appear*/
-/* CHANGE LATER
-int strInArray(char *str, char arr[STRING_PARTS][LINE_LEN]) {
-    size_t len;
-    int i;
-    len = sizeof(arr)/sizeof(arr[0]);
+/* return the symbol, NULL if there is no symbol */
+char *findSymbol(char *str) {
+    return ValidToken(":",str);
+}
 
-    for(i=0;i<len;i++) {
-        if(!strcmp(str,arr[i]))
-            return i;
+/* return NULL if the token is not valid, or the string if this is a real token */
+char *ValidToken(char *tok, char *str) {
+    char arr[STRING_PARTS][LINE_LEN];
+    char tempStr[LINE_LEN];
+    int del;
+    size_t len1,len2;
+
+    del = split(str,tok,arr);
+    if(del == DELIM_NOT_EXIST)
+        return NULL;
+    len1 = strlen(arr[IMPORTANT]);
+    strcpy(tempStr,arr[IMPORTANT]);
+    split(str,"\"",arr);
+    len2 = strlen(arr[IMPORTANT]);
+    if(len1 > len2)
+        return NULL;
+    return tempStr;
+}
+
+Bool isExternal(char *str, int symbolLen) {
+    char *strCopy = (char *) malloc(LINE_LEN);
+    strCopy += symbolLen;
+    strcpy(strCopy,strip(strCopy));
+    if(!strncmp(strCopy,".extern",7)) {
+        free(strCopy);
+        return True;
     }
-    return -1;
-} */
+    free(strCopy);
+    return False;
+}

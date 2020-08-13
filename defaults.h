@@ -1,3 +1,6 @@
+#ifndef DEFAULTS_H
+#define DEFAULTS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +17,8 @@
 #define DEST_REG_LEN 3
 #define FUNCT_LEN 5
 #define ARE_FIELD_LEN 1
+
+#define STARTING_IC 100
 
 typedef enum {False, True} Bool;
 
@@ -32,14 +37,16 @@ typedef union {
     } bits;
 } Word;
 
-
 extern int IC;
 extern int DC;
 extern int lineCounter;
 extern Bool foundError; 
+extern char whitespace[7];
 
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
-typedef enum {LineTooLong, UnknownOperation, Valid} Status;
+typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,Valid=100} Status;
 
 
-Status mini_main();
+
+
+#endif

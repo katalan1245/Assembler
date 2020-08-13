@@ -18,7 +18,7 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
     strcpy(t->symbol, node.symbol);
     t->value = node.value;
     t->location = node.location;
-    t->type = node.type;
+    t->isExternal = node.isExternal;
 
     p1 = *hptr;
     p2 = NULL;
@@ -64,4 +64,13 @@ void printList(symbolTableNodePtr hptr) {
         printf("ptr: %s\n",hptr->symbol);
         hptr = hptr->next;
     }
+}
+
+/* check if the symbol already exist in the symbol table*/
+Bool symbolInList(symbolTableNodePtr hptr, char *symbol) {
+    while(hptr) {
+        if(!strcmp(symbol,hptr->symbol))
+            return True;
+    }
+    return False;
 }

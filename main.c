@@ -1,9 +1,12 @@
 #include "defaults.h"
+#include "symbolTableLinkedList.h"
 
 Bool foundError = False;
 int IC = 100;
 int DC = 0;
 int lineCounter = 0;
+symbolTableNodePtr hptr;
+
 
 int main(int argc, char *argv[]) {
     /*Status status;*/
