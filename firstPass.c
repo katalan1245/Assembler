@@ -170,12 +170,64 @@ Type findType(char *str, char *symbol) {
 
 int findAddressMethod(char *str) {
     if(*str == '#')
-        return 0;
+    {
+    	if(checkNum(*(str+1)))
+    	{
+    		long num = atol(*(str+1));
+    		if(num >= -1048576 && num <= 1048575)
+    			return 0;
+    	}
+    	return InvalidNumber;
+    }
+
     if(*str == '&')
-        return 2;
-    if(!strcmp(str,"r0") || !strcmp(str,"r1") || !strcmp(str,"r2") || 
-       !strcmp(str,"r3") || !strcmp(str,"r4") || !strcmp(str,"r5") || 
-       !strcmp(str,"r6") || !strcmp(str,"r7"))
-       return 3;
-    return 1;
+    {
+    	if(checkValidLabel(*(str+1)))
+    		return 2;
+
+    	return InvalidLabel;
+    }
+
+    if(findReg(str) != -1)
+    	return 3;
+
+    if(checkValidLabel(*(str+1)))
+    	return 1;
+
+    return InvalidLabel;
+}
+
+int checkNum(char *str)
+{
+	int i;
+	for(i = 0; i < strlen(str); i++)
+	{
+		if(str[i] < '0' || str[i] > '9')
+			return 0;
+	}
+	return 1;
+}
+
+int checkValidLabel(char *str)
+{
+	char whitespace[7] = " \t\n\v\f\r";
+	int i,j;
+	if(strlen(str) > 31)
+		return 0;/*Too long*/
+	
+	if((*str <= 'z' && *str >= 'a') || (*str <= 'Z' && *str >= 'A'))
+		return 0;/*Doesn't start with a letter*/
+
+	if(findReg(str) != -1 || findOpcode(str) != -1)
+		return 0;/*Label with the same name of a saved name*/
+
+	for(i = 0; i < strlen(str); i++)/*check that there are no white spaces*/
+	{
+		for(j = 0; j < strlen(whitespace); j++)
+		{
+			if(str[i] == whitespace[j])
+				return 0;/*Has white spaces*/
+		}
+	}
+	return 1;/*valid*/
 }
