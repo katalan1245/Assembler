@@ -13,7 +13,7 @@ void addWordToImage(wordNodePtr *hptr, Word word) {
 
     t = (wordNodePtr) malloc(sizeof(wordNode));
     if(!t) {
-        fprintf(stderr,"Cannot Build List!");
+        printf("Malloc Failed- Cannot Build List!");
         exit(0);
     }
 
@@ -58,7 +58,7 @@ void removeFirstNode(wordNodePtr *hptr) {
 }
 
 void fillWordData(Word *word, long address, ARE flag) {
-    word->type = Address;
+    word->type = wordData;
     word->data.wordData.address = address;
     if(word->data.wordData.useARE) {
         word->data.wordData.address <<= 3;

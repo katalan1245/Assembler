@@ -68,6 +68,7 @@ int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
     int i;
 
     strcpy(strCopy, str);
+    /* check if the delimeter on the first char */
     for(i=0;i<strlen(delim);i++) {
         if(str[0] == delim[i]) {
             strcpy(arr[IMPORTANT],"");
@@ -78,13 +79,13 @@ int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
 
     tok = strtok(strCopy, delim); /* look for the first token */
     if (strlen(tok) == strlen(str)) {
-        strcpy(arr[0], str);
-        strcpy(arr[1], "");
+        strcpy(arr[IMPORTANT], str);
+        strcpy(arr[REST], "");
         return DELIM_NOT_EXIST;
     }
     tok = strtok(NULL, delim); /* look for the next token */
-    strcpy(arr[0], strCopy);
-    strcpy(arr[1], (str + strlen(strCopy) + 1)); /* we want the rest of the string, and not until the next token */
+    strcpy(arr[IMPORTANT], strCopy);
+    strcpy(arr[REST], (str + strlen(strCopy) + 1)); /* we want the rest of the string, and not until the next token */
     return DELIM_EXIST;
 }
 

@@ -22,17 +22,17 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
 
     p1 = *hptr;
     p2 = NULL;
-    // get to the last node
+    /* get to the last node */
     while(p1) {
         p2 = p1;
         p1 = p1->next;
     }
 
-    // if the last node is the head
+    /* if the list empty */
     if(p1 == *hptr) {
         *hptr = t;
     }
-    else { // add the new node to the end of the list
+    else { /* add the new node to the end of the list */
         p2->next = t;
         t->next = p1;
     }

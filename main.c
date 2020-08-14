@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
         lineCounter = 0;
 
         if(!f) {
-            fprintf(stderr, "%s: Cannot open file!",argv[i]);
+            printf("%s: Cannot open file!",argv[i]);
             continue;
         }
 
@@ -31,12 +31,10 @@ int main(int argc, char *argv[]) {
         rewind(f);
 
         while(!feof(f)) {
-            status = mini_main(f);
-
+            status = firstPass(f);
+            if(status != Valid)
+                printError();
         }
-
-        if(status != Valid)
-            printError();
         
         fclose(f);
     } */

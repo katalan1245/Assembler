@@ -40,7 +40,7 @@ typedef struct {
             Bool useARE;
         } wordData;
     } data;
-    enum {Code, Address} type;
+    enum {Code, wordData} type;
 } Word;
 
 

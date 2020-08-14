@@ -15,11 +15,11 @@ typedef struct node {
     symbolTableNodePtr next;
 } symbolTableNode;
 
-void addToList(symbolTableNodePtr *, symbolTableNode);
-void freeList(symbolTableNodePtr *);
-void removeFirstNode(symbolTableNodePtr *);
+void addToList(symbolTableNodePtr*,symbolTableNode);
+void freeList(symbolTableNodePtr*);
+void removeFirstNode(symbolTableNodePtr*);
 void printList(symbolTableNodePtr);
-Bool symbolInList(symbolTableNodePtr, char *);
+Bool symbolInList(symbolTableNodePtr,char*);
 
 
 #endif
