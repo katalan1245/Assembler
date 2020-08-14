@@ -23,7 +23,6 @@ Status handleInstruction(char *line) {
     Status status;
     char *tempStr;
     Word word;
-    word.type = Code;
     status = findInstructionsErrors(line);
     if(status != Valid)
         return status;
@@ -35,23 +34,24 @@ Status handleInstruction(char *line) {
     }
     strcpy(line,strip(line));
     /* find the opcode and funct */
-    word.data.code.opcode = findOpcode(line);
-    word.data.code.funct = findFunct(line);
-    if(word.data.code.opcode == -1)
+    word.code.opcode = findOpcode(line);
+    word.code.funct = findFunct(line);
+    if(word.code.opcode == -1)
         return UnknownOperation;
-    line += word.data.code.opcode == 15 ? 4 : 3;
+    line += word.code.opcode == 15 ? 4 : 3; /* go to the next char after the operation */
     strcpy(line,strip(line));
-    if(word.data.code.opcode <= 4)
+    if(word.code.opcode <= 4)
         fillTwoOperands(line,&word); // write the function
-    else if(word.data.code.opcode <= 13)
+    else if(word.code.opcode <= 13)
         fillOneOperand(line,&word); // write the function
     else /* operation has no operands */
         if(strcmp(line,"")) /* if there is text left raise error */
             return NeedlessOperands;
-        else { /* we can write the word */
-            fillWordCode(&word,word.data.code.opcode,0,0,0,0,0,1,0,0);
-            addWordToImage(codeHptr, word);
+        else {
+            IC++;
+            return Valid;
         }
+    
 }
 
 Status fillTwoOperands(char *str, Word *word)
@@ -68,11 +68,14 @@ Status fillTwoOperands(char *str, Word *word)
 	}
 	op1 = findAddressMethod(arr[IMPORTANT]);
 	op2 = findAddressMethod(arr[REST]);
-	if((*word).data.code.opcode < 3)
+    if(op1 == -1 || op2 == -1)
+        return InvalidOperand;
+    
+	if((*word).code.opcode < 3)
 	{
 		if(op1 == 2 || op2 == 2)
 			return InvalidOperand;
-		if((*word).data.code.opcode % 2 ==0 && op2 %2 == 0)
+		if((*word).code.opcode % 2 ==0 && op2 %2 == 0)
 			return InvalidOperand;
 	}
 	else
@@ -96,11 +99,11 @@ Status fillOneOperand(char *str,Word *word)
 		return MissingOperand;
 	op = findAddressMethod(str);
 
-	if(((*word).data.code.opcode == 5 || (*word).data.code.opcode ==12)&& op %2 ==0)
+	if(((*word).code.opcode == 5 || (*word).code.opcode ==12)&& op %2 ==0)
 		return InvalidOperand;
-	if((*word).data.code.opcode == 0 && op >2)
+	if((*word).code.opcode == 0 && op >2)
 		return InvalidOperand;
-	if((*word).data.code.opcode == 13 && op == 2)
+	if((*word).code.opcode == 13 && op == 2)
 		return InvalidOperand;
 
 	IC+=1;
@@ -155,9 +158,9 @@ Type findType(char *str, char *symbol) {
     int flag = 0;
     strCopy += strlen(symbol);
     strcpy(strCopy,strip(strCopy));
-    if(!strncmp(strCopy,".extern",7))
+    if(!strcmp(strCopy,".extern"))
         flag = External;
-    else if(!strncmp(strCopy,".entry",6))
+    else if(!strcmp(strCopy,".entry"))
         flag = Entry;
     else
         flag = None;
@@ -170,9 +173,9 @@ int findAddressMethod(char *str) {
         return 0;
     if(*str == '&')
         return 2;
-    if(!strncmp(str,"r0",2) || !strncmp(str,"r1",2) || !strncmp(str,"r2",2) || 
-       !strncmp(str,"r3",2) || !strncmp(str,"r4",2) || !strncmp(str,"r5",2) || 
-       !strncmp(str,"r6",2) || !strncmp(str,"r7",2))
+    if(!strcmp(str,"r0") || !strcmp(str,"r1") || !strcmp(str,"r2") || 
+       !strcmp(str,"r3") || !strcmp(str,"r4") || !strcmp(str,"r5") || 
+       !strcmp(str,"r6") || !strcmp(str,"r7"))
        return 3;
     return 1;
 }

@@ -22,6 +22,7 @@
 
 typedef enum {False, True} Bool;
 
+/*
 typedef struct {
     union {
         struct {
@@ -42,12 +43,14 @@ typedef struct {
     } data;
     enum {Code, wordData} type;
 } Word;
+*/
 
 
-/*
 typedef union {
-    unsigned int index;
-    unsigned int address:WORD_LEN;
+    struct {
+        unsigned long index:24;
+        Bool userARE;
+    } data;
     struct {
         unsigned int E:ARE_FIELD_LEN;
         unsigned int R:ARE_FIELD_LEN;
@@ -59,7 +62,7 @@ typedef union {
         unsigned int srcAdd:SRC_ADD_LEN;
         unsigned int opcode:OPCODE_LEN;
     } code;
-} Word; */
+} Word;
 
 extern int IC;
 extern int DC;

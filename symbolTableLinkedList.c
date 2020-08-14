@@ -38,14 +38,14 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
     }
 }
 
-void freeList(symbolTableNodePtr *hptr) {
+void freeSymbolList(symbolTableNodePtr *hptr) {
     while (*hptr) {
         *hptr = (*hptr)->next;
     }
 }
 
 // need to fix
-void removeFirstNode(symbolTableNodePtr *hptr) {
+void removeFirstSymbolNode(symbolTableNodePtr *hptr) {
 
     if(!hptr) {
         printf("Cannot Remove From Empty List!");

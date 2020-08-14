@@ -16,8 +16,8 @@ typedef struct node {
 } symbolTableNode;
 
 void addToList(symbolTableNodePtr*,symbolTableNode);
-void freeList(symbolTableNodePtr*);
-void removeFirstNode(symbolTableNodePtr*);
+void freeSymbolList(symbolTableNodePtr*);
+void removeFirstSymbolNode(symbolTableNodePtr*);
 void printList(symbolTableNodePtr);
 Bool symbolInList(symbolTableNodePtr,char*);
 
