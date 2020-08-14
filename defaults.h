@@ -70,7 +70,7 @@ extern char whitespace[7];
 typedef enum {A=4,R=2,E=1} ARE;
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
 typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
-              NeedlessOperands=3, Valid=100} Status;
+              NeedlessOperands=3, MissingOperand=4, InvalidOperand=5, Valid=100} Status;
 
 
 

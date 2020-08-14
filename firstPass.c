@@ -42,9 +42,9 @@ Status handleInstruction(char *line) {
     line += word.data.code.opcode == 15 ? 4 : 3;
     strcpy(line,strip(line));
     if(word.data.code.opcode <= 4)
-        fillTwoOperands(line); // write the function
+        fillTwoOperands(line,&word); // write the function
     else if(word.data.code.opcode <= 13)
-        fillOneOperand(line); // write the function
+        fillOneOperand(line,&word); // write the function
     else /* operation has no operands */
         if(strcmp(line,"")) /* if there is text left raise error */
             return NeedlessOperands;
@@ -52,6 +52,60 @@ Status handleInstruction(char *line) {
             fillWordCode(&word,word.data.code.opcode,0,0,0,0,0,1,0,0);
             addWordToImage(codeHptr, word);
         }
+}
+
+Status fillTwoOperands(char *str, Word *word)
+{
+	char arr[STRING_PARTS][LINE_LEN];
+	int op1,op2;
+	split(str,",",arr);
+
+	strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
+	strcpy(arr[REST],strip(arr[REST]));
+	if(!strcmp(arr[IMPORTANT],"") || !strcmp(arr[REST],""))
+	{
+		return MissingOperand;
+	}
+	op1 = findAddressMethod(arr[IMPORTANT]);
+	op2 = findAddressMethod(arr[REST]);
+	if((*word).data.code.opcode < 3)
+	{
+		if(op1 == 2 || op2 == 2)
+			return InvalidOperand;
+		if((*word).data.code.opcode % 2 ==0 && op2 %2 == 0)
+			return InvalidOperand;
+	}
+	else
+	{
+		if(op1 != 1 || op2 % 2 ==0)
+			return InvalidOperand;
+	}
+
+	IC+=1;
+	if(op1 < 2)
+		IC+=1;
+	if(op2 < 2)
+		IC+=1;
+}
+
+Status fillOneOperand(char *str,Word *word)
+{
+	int op;
+	strcpy(str, strip(str));
+	if(str == '\n' || str == '\0')
+		return MissingOperand;
+	op = findAddressMethod(str);
+
+	if(((*word).data.code.opcode == 5 || (*word).data.code.opcode ==12)&& op %2 ==0)
+		return InvalidOperand;
+	if((*word).data.code.opcode == 0 && op >2)
+		return InvalidOperand;
+	if((*word).data.code.opcode == 13 && op == 2)
+		return InvalidOperand;
+
+	IC+=1;
+	if(op < 2)
+		IC+=1;
 }
 
 Status handleDirective(char *line) {
