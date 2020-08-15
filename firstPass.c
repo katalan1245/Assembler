@@ -210,12 +210,11 @@ int checkNum(char *str)
 
 int checkValidLabel(char *str)
 {
-	char whitespace[7] = " \t\n\v\f\r";
-	int i,j;
+	int i;
 	if(strlen(str) > 31)
 		return 0;/*Too long*/
 	
-	if((*str <= 'z' && *str >= 'a') || (*str <= 'Z' && *str >= 'A'))
+	if((*str > 'z' || *str < 'a') && (*str > 'Z' || *str < 'A'))
 		return 0;/*Doesn't start with a letter*/
 
 	if(findReg(str) != -1 || findOpcode(str) != -1)
@@ -223,11 +222,8 @@ int checkValidLabel(char *str)
 
 	for(i = 0; i < strlen(str); i++)/*check that there are no white spaces*/
 	{
-		for(j = 0; j < strlen(whitespace); j++)
-		{
-			if(str[i] == whitespace[j])
-				return 0;/*Has white spaces*/
-		}
+		if((str[i] > '9' || str[i] < '0') && (str[i] > 'z' || str[i] < 'a') && (str[i] > 'Z' || str[i] < 'A'))
+			return 0;
 	}
 	return 1;/*valid*/
 }
