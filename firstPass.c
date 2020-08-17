@@ -6,7 +6,7 @@ static wordNodePtr dataHptr;
 static wordNodePtr codeHptr;
 
 Status firstPass(FILE *f) {
-    char *str = (char*) malloc(LINE_LEN);
+    char str[LINE_LEN];
     Statement state;
     state = getLine(f, &str); /* get the line and the statement */
     strcpy(str,strip(str)); 
@@ -20,15 +20,20 @@ Status firstPass(FILE *f) {
 }
 
 Status handleInstruction(char *line) {
-    Status status;
+    /*Status status;*/
     char *tempStr;
     Word word;
+    /*
     status = findInstructionsErrors(line);
     if(status != Valid)
         return status;
+    */
     /* find the label */
     tempStr = findSymbol(line);
     if(tempStr) {
+        if(!checkValidLabel(tempStr) || symbolInList(symbolHptr,tempStr))
+        	return InvalidLabel;
+
         addSymbol(line);
         line+=strlen(tempStr);
     }
@@ -112,12 +117,74 @@ Status fillOneOperand(char *str,Word *word)
 }
 
 Status handleDirective(char *line) {
+	char *tempStr;
+	Type type;
+	char arr[STRING_PARTS][LINE_LEN];
+
+	tempStr = findSymbol(line);
+    if(tempStr) {
+    	type = findType(line, tempStr);
+        if(type != External && type != Entry)
+        {
+        	if(!checkValidLabel(tempStr) || symbolInList(symbolHptr,tempStr))
+        		return InvalidLabel;
+
+        	addSymbol(line);
+        }
+
+        line+=strlen(tempStr);
+    }
+    else
+    	type = findType(line, "");
+
+    if(*line != ' ')
+    	return -1;
+
+    strcpy(line,strip(line));
+
+    split(line,whitespace,arr);
+    strcpy(line, strip(arr[REST]));
+
+    if(type == none)
+    	return InvalidDirective;
+
+    else if(type == External || type == Entry)
+    {
+    	int oper = findAddressMethod(line);
+    	if(oper != 1)
+    		return InvalidOperand;
+    	/*need to add to list*/
+    }
+    else if(type == String)
+    {
+    	int ind = findFromEnd(line, '\"');
+    	if(*line != '\"')
+    		return InvalidOperand;
+    	if(ind == strlen(line))
+    		return NoClosingQuotes;
+    	if(ind != 1)
+    		return TextAfterQuotes;
+    	DC+=strlen(line)-2;
+    }
+    else 
+    {
+    	while(line)
+    	{
+    		split(line,',',arr);
+    		strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
+    		if(!checkNum(arr[IMPORTANT]))
+    			return InvalidOperand;
+    		DC++;
+    		strcpy(line,strip(arr[REST]));
+    	}
+    }
+
     return Valid;
 }
 
 /* return the error, or valid if there are no errors */
 Status findInstructionsErrors(char *str) {
-    char *strCopy = (char*) malloc(LINE_LEN);
+    char strCopy[LINE_LEN];
     char *symbol;
     char arr[STRING_PARTS][LINE_LEN];
     strcpy(strCopy,str);
@@ -152,22 +219,6 @@ char *findSymbol(char *str) {
     return validToken(":",str);
 }
 
-/* return the type of the line */
-Type findType(char *str, char *symbol) {
-    char *strCopy = (char *) malloc(LINE_LEN);
-    int flag = 0;
-    strCopy += strlen(symbol);
-    strcpy(strCopy,strip(strCopy));
-    if(!strcmp(strCopy,".extern"))
-        flag = External;
-    else if(!strcmp(strCopy,".entry"))
-        flag = Entry;
-    else
-        flag = None;
-    free(strCopy);
-    return flag;
-}
-
 int findAddressMethod(char *str) {
     if(*str == '#')
     {
@@ -199,8 +250,11 @@ int findAddressMethod(char *str) {
 
 int checkNum(char *str)
 {
-	int i;
-	for(i = 0; i < strlen(str); i++)
+	int i = 0;
+	if(*str == '+' || *str == '-')
+		i++;
+
+	for(; i < strlen(str); i++)
 	{
 		if(str[i] < '0' || str[i] > '9')
 			return 0;
@@ -220,7 +274,7 @@ int checkValidLabel(char *str)
 	if(findReg(str) != -1 || findOpcode(str) != -1)
 		return 0;/*Label with the same name of a saved name*/
 
-	for(i = 0; i < strlen(str); i++)/*check that there are no white spaces*/
+	for(i = 1; i < strlen(str); i++)/*check that there are only letters and numbers in the label*/
 	{
 		if((str[i] > '9' || str[i] < '0') && (str[i] > 'z' || str[i] < 'a') && (str[i] > 'Z' || str[i] < 'A'))
 			return 0;
