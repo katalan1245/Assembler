@@ -5,11 +5,13 @@
 #include "symbolTableLinkedList.h"
 #include "dataImage.h"
 
-Status handleInstruction(char*);
-Status handleInstruction(char*);
+Status firstPass(struct variables*);
+Status handleInstruction(struct variables*,Word*);
+Status handleDirective(struct variables*,Word*);
 Status findInstructionsErrors(char*);
-void addSymbol(char*);
+void addSymbol(struct variables*,Location);
 char *findSymbol(char*);
-Type findType(char*,char*);
+EntryOrExternal findEntryOrExternal(char*);
+DataOrString findDataOrString(char*);
 
 #endif

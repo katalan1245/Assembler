@@ -1,65 +1,85 @@
+/* IMPORTANT LABELS FUNCTIONS TO ADD !!!!!!!!!*/
+
 #include "firstPass.h"
 
 static Bool hasSymbol;
+static Bool hasError = False;
 static symbolTableNodePtr symbolHptr;
 static wordNodePtr dataHptr;
 static wordNodePtr codeHptr;
 
-Status firstPass(FILE *f) {
-    char str[LINE_LEN];
+Status firstPass(struct variables *variablesPtr) {
     Statement state;
-    state = getLine(f, &str); /* get the line and the statement */
-    strcpy(str,strip(str)); 
-    if(state == Instruction)
-        return handleInstruction(str);
-    if(state == Directive)
-        return handleDirective(str);
-    if(state == Invalid)
-        return LineTooLong;
+    Word word;
+
+    while(!feof(variablesPtr->file)) {
+        state = getLine(variablesPtr->file, &variablesPtr->line);
+        strcpy(variablesPtr->line,strip(variablesPtr->line));
+
+        if(state == Invalid)
+            variablesPtr->status = LineTooLong;
+
+        if(state == Instruction)
+            variablesPtr->status = handleInstruction(variablesPtr->line,&word);
+
+        if(state == Directive)
+            variablesPtr->status = handleDirective(variablesPtr->line,&word);
+        
+        if(variablesPtr->status != Valid)
+            variablesPtr->foundError = True;
+
+        printError(variablesPtr);
+    }
     return Valid;
 }
 
-Status handleInstruction(char *line) {
-    /*Status status;*/
-    char *tempStr;
-    Word word;
-    /*
-    status = findInstructionsErrors(line);
-    if(status != Valid)
-        return status;
-    */
+Status handleInstruction(struct variables *variablesPtr,Word *wordPtr) {
+    char *symbol;
+    char *lineCopy = (char*) malloc(LINE_LEN);
+    Status status;
+    strcpy(lineCopy,variablesPtr->line);
+    
     /* find the label */
-    tempStr = findSymbol(line);
-    if(tempStr) {
-        if(!checkValidLabel(tempStr) || symbolInList(symbolHptr,tempStr))
-        	return InvalidLabel;
+    symbol = findSymbol(lineCopy);
+    if(symbol) {
+        strcpy(variablesPtr->symbol,symbol);
+        status = checkSyntaxValidLabel(variablesPtr);
+        if(status != Valid)
+            return status;
 
-        addSymbol(line);
-        line+=strlen(tempStr);
+        status = checkAddValidLabel(variablesPtr);
+        if(status != Valid)
+            return status;
+
+        if(strlen(symbol) >= strlen(lineCopy) || lineCopy[strlen(symbol)])
+        addSymbol(symbol, Code);
+        lineCopy+=strlen(symbol);
     }
-    strcpy(line,strip(line));
+    strcpy(lineCopy,strip(lineCopy));
     /* find the opcode and funct */
-    word.code.opcode = findOpcode(line);
-    word.code.funct = findFunct(line);
-    if(word.code.opcode == -1)
+    wordPtr->code.opcode = findOpcode(lineCopy);
+    wordPtr->code.funct = findFunct(lineCopy);
+
+    if(wordPtr->code.opcode == -1)
         return UnknownOperation;
-    line += word.code.opcode == 15 ? 4 : 3; /* go to the next char after the operation */
-    strcpy(line,strip(line));
-    if(word.code.opcode <= 4)
-        fillTwoOperands(line,&word); // write the function
-    else if(word.code.opcode <= 13)
-        fillOneOperand(line,&word); // write the function
+
+    lineCopy += wordPtr->code.opcode == 15 ? 4 : 3; /* go to the next char after the operation */
+    strcpy(lineCopy,strip(lineCopy));
+    if(wordPtr->code.opcode <= 4)
+        status = fillTwoOperands(lineCopy,wordPtr); // write the function
+    else if(wordPtr->code.opcode <= 13)
+        status = fillOneOperand(lineCopy,wordPtr); // write the function
     else /* operation has no operands */
-        if(strcmp(line,"")) /* if there is text left raise error */
-            return NeedlessOperands;
+        if(strcmp(lineCopy,"")) /* if there is text left raise error */
+            return TextAfterCommand;
         else {
-            IC++;
+            variablesPtr->IC++;
             return Valid;
         }
     
 }
 
-Status fillTwoOperands(char *str, Word *word)
+Status fillTwoOperands(char *str, Word *word, struct variables *variablesPtr)
 {
 	char arr[STRING_PARTS][LINE_LEN];
 	int op1,op2;
@@ -68,19 +88,18 @@ Status fillTwoOperands(char *str, Word *word)
 	strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
 	strcpy(arr[REST],strip(arr[REST]));
 	if(!strcmp(arr[IMPORTANT],"") || !strcmp(arr[REST],""))
-	{
 		return MissingOperand;
-	}
 	op1 = findAddressMethod(arr[IMPORTANT]);
 	op2 = findAddressMethod(arr[REST]);
+
     if(op1 == -1 || op2 == -1)
         return InvalidOperand;
-    
+
 	if((*word).code.opcode < 3)
 	{
 		if(op1 == 2 || op2 == 2)
 			return InvalidOperand;
-		if((*word).code.opcode % 2 ==0 && op2 %2 == 0)
+        if(word->code.opcode % 2 == 0 && op2 == 0)
 			return InvalidOperand;
 	}
 	else
@@ -89,15 +108,23 @@ Status fillTwoOperands(char *str, Word *word)
 			return InvalidOperand;
 	}
 
-	IC+=1;
-	if(op1 < 2)
-		IC+=1;
-	if(op2 < 2)
-		IC+=1;
-}
+    
+    word->code.srcAdd = op1;
+    word->code.destReg = op2;
+    word->code.srcReg = op1 == 3 ? findReg(arr[IMPORTANT]) : 0;
+    word->code.destReg = op2 == 3 ? findReg(arr[IMPORTANT]) : 0;
+	variablesPtr->IC++;
+	if(op1 <= 2)
+		variablesPtr->IC++;
+	if(op2 <= 2)
+		variablesPtr->IC++;
+        
+    addWordToImage(variablesPtr->codeHptr,*word);
+    return Valid;
+    /* MAINLY FINISHED WITH 2 OPERANDS */
 
-Status fillOneOperand(char *str,Word *word)
-{
+Status fillOneOperand(char *str,Word *word, struct variables *variablesPtr)
+{ /* NEED TO WORK ON 1 OPERAND */
 	int op;
 	strcpy(str, strip(str));
 	if(str == '\n' || str == '\0')
@@ -111,9 +138,9 @@ Status fillOneOperand(char *str,Word *word)
 	if((*word).code.opcode == 13 && op == 2)
 		return InvalidOperand;
 
-	IC+=1;
+	variablesPtr->IC+=1;
 	if(op < 2)
-		IC+=1;
+		variablesPtr->IC+=1;
 }
 
 Status handleDirective(char *line) {
@@ -142,10 +169,10 @@ Status handleDirective(char *line) {
 
     strcpy(line,strip(line));
 
-    split(line,whitespace,arr);
+    split(line," \t",arr);
     strcpy(line, strip(arr[REST]));
 
-    if(type == none)
+    if(type == None)
     	return InvalidDirective;
 
     else if(type == External || type == Entry)
@@ -208,41 +235,51 @@ Status findInstructionsErrors(char *str) {
     return Valid;    
 }
 
-void addSymbol(char *str) {
-    char *symbol = findSymbol(str);
+/* the the symbol from the variables ptr with the location loc to the list */
+void addSymbol(struct variables *variablesPtr, Location loc) {
     symbolTableNode newSymbol;
-    newSymbol.symbol = symbol;
-    newSymbol.location = Code;
+    newSymbol.symbol = variablesPtr->symbol;
     newSymbol.next = NULL;
-    newSymbol.type = findType(str,symbol);
-    newSymbol.value = IC;
-    addToList(&symbolHptr,newSymbol);
+    newSymbol.type = findType(variablesPtr);
+    if(loc == Code) {
+        newSymbol.address = variablesPtr->IC;
+        newSymbol.location = Code;
+    }
+    else {
+        newSymbol.address = variablesPtr->DC;
+        newSymbol.location = Data;
+    }
+    addToList(&variablesPtr->symbolHptr,newSymbol);
 }
 
 /* return the symbol, NULL if there is no symbol */
 char *findSymbol(char *str) {
-
     return validToken(":",str);
 }
 
 int findAddressMethod(char *str) {
+    char *ptr;
     if(*str == '#')
     {
-    	if(checkNum(*(str+1)))
+    	if(checkNum(++str) == Valid);
     	{
-    		long num = atol(*(str+1));
-    		if(num >= -1048576 && num <= 1048575)
-    			return 0;
+            long num = strtol(str,ptr,10);
+            if(*ptr != '\0')
+                return -1; /* invalid number */
+            if(num > 8388607 || num < -8388608)
+    			return -1; /* invalid number */
+            return 0;
     	}
-    	return InvalidNumber;
+    	return -1; /* invalid number */
     }
 
     if(*str == '&')
     {
-    	if(checkValidLabel(*(str+1)))
+        
+    	if(checkSyntaxValidLabel(str+1) == Valid)
     		return 2;
 
-    	return InvalidLabel;
+    	return -1; /* invalid label */
     }
 
     if(findReg(str) != -1)
@@ -251,39 +288,66 @@ int findAddressMethod(char *str) {
     if(checkValidLabel(*(str+1)))
     	return 1;
 
-    return InvalidLabel;
+    return -1;
 }
 
-int checkNum(char *str)
+Status checkNum(char *str)
 {
 	int i = 0;
-	if(*str == '+' || *str == '-')
-		i++;
+	if(*str != '+' && *str != '-' && !isdigit(*str))
+        return InvalidNumber;
+	i++;
 
 	for(; i < strlen(str); i++)
-	{
-		if(str[i] < '0' || str[i] > '9')
-			return 0;
-	}
-	return 1;
+		if(!isdigit(str[i]))
+			return InvalidNumber;
+	return Valid;
 }
 
-int checkValidLabel(char *str)
+Status checkSyntaxValidLabel(struct variables *variablesPtr)
 {
 	int i;
-	if(strlen(str) > 31)
-		return 0;/*Too long*/
+    char str[LABEL_LEN];
+    strcpy(str,variablesPtr->symbol);
+	if(strlen(variablesPtr->symbol) > 31)
+		return LabelTooLong; /*Too long*/
 	
 	if((*str > 'z' || *str < 'a') && (*str > 'Z' || *str < 'A'))
-		return 0;/*Doesn't start with a letter*/
+		return LabelInvalidStart; /*Doesn't start with a letter*/
 
-	if(findReg(str) != -1 || findOpcode(str) != -1)
-		return 0;/*Label with the same name of a saved name*/
+	if(findOpcode(str) != -1 || findReg(str) != -1 || findType(str) != None)
+		return ReservedLabelName; /*Label with the same name of a saved name*/
 
-	for(i = 1; i < strlen(str); i++)/*check that there are only letters and numbers in the label*/
-	{
-		if((str[i] > '9' || str[i] < '0') && (str[i] > 'z' || str[i] < 'a') && (str[i] > 'Z' || str[i] < 'A'))
-			return 0;
+    if(variablesPtr->line[strlen(str)] != " " || variablesPtr->line[strlen(str)] != "\t")
+        return MissingWhitespace;
+
+    for(i = 1; i < strlen(str); i++) { /*check that there are only letters and numbers in the label*/
+		if(isalnum(str[i])) /* is alpha numeric */
+			return LabelInvalidCharacters;
 	}
-	return 1;/*valid*/
+
+	return Valid; /*valid*/
+}
+
+
+Status checkAddValidLabel(struct variables *variablesPtr,EntryOrExternal type) {
+    
+    if(symbolInList(variablesPtr->symbolHptr,variablesPtr->symbol))
+        return SymbolAlreadyExist;
+
+    if(strlen(variablesPtr->symbol) == strlen(variablesPtr->line))
+        return MissingOperand;
+
+    
+    return Valid;
+}
+
+Status checkDirectiveLabel(struct variables *variablesPtr,EntryOrExternal type) {
+    if(symbolInList(variablesPtr->symbolHptr,variablesPtr->symbol)) {
+        EntryOrExternal symbolType;
+        symbolType = getSymbolType(variablesPtr->symbolHptr,variablesPtr->symbol);
+        if(symbolType != None && symbolType != type)
+            return SymbolEntryAndExtern;
+    }
+            
 }

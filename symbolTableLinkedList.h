@@ -8,9 +8,10 @@ typedef enum {Code, Data} Location;
 typedef struct node *symbolTableNodePtr;
 typedef struct node {
     char *symbol;
-    int value;
+    int address;
     Location location;
-    Type type;
+    EntryOrExternal type;
+    Bool defined;
     symbolTableNodePtr next;
 } symbolTableNode;
 
@@ -19,6 +20,6 @@ void freeSymbolList(symbolTableNodePtr*);
 void removeFirstSymbolNode(symbolTableNodePtr*);
 void printList(symbolTableNodePtr);
 Bool symbolInList(symbolTableNodePtr,char*);
-
+EntryOrExternal getSymbolType(symbolTableNodePtr,char*);
 
 #endif

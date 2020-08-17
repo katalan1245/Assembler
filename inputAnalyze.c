@@ -7,19 +7,9 @@ Statement getLine(FILE *f,char **str) {
     Statement state;
     
     fgets(*str,LINE_LEN,f);
-    lineCounter++;
 
     state = firstCheck(*str);
     return state;
-    /*
-    if(state == Empty || state == Comment)
-        return Valid;
-    if(state == Instruction)
-        return handleInstruction(line);
-    else
-        return handleDirective(line);
-    
-   return Valid; */
 }
 
 /* return the statement of the sentence or invalid*/
@@ -123,7 +113,7 @@ int findReg(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
     char oper[LINE_LEN];
     split(str,whitespace,arr);
-    strcpy(oper,arr[IMPORTANT]);
+    strcpy(oper,strip(arr[IMPORTANT]));
 
     if(!strcmp(oper,"r0"))
         return 0;
@@ -181,19 +171,24 @@ char *validToken(char *tok, char *str) {
 }
 
 /* return the type of the line */
-Type findType(char *str, char *symbol) {
+EntryOrExternal findEntryOrExternal(char *str) {
     char *strCopy = (char *) malloc(LINE_LEN);
-    int flag = 0;
-    strCopy += strlen(symbol);
-    strcpy(strCopy,strip(strCopy));
-    if(!strcmp(strCopy,".extern"))
+    EntryOrExternal flag = None;
+    if(!strcmp(str,".extern"))
         flag = External;
-    else if(!strcmp(strCopy,".entry"))
+    else if(!strcmp(str,".entry"))
         flag = Entry;
-    else if(!strcmp(strCopy,".data"))
-        flag = Data;
-    else if(!strcmp(strCopy,".string"))
-        flag = String;
     free(strCopy);
     return flag;
+}
+
+DataOrString findDataOrString(char *str) {
+    char *strCopy = (char*) malloc(LINE_LEN);
+    DataOrString flag = None;
+    if(!strcmp(str,".data"))
+        flag = Data;
+    else if(!strcmp(str,".string"))
+        flag = String;
+    free(strCopy);
+    return;
 }

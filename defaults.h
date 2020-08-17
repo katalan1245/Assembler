@@ -6,6 +6,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#define FILE_LEN 100
+#define EXTENSION_LEN 3
 #define LINE_LEN 82
 #define LABEL_LEN 31
 #define WORD_LEN 24
@@ -21,30 +23,6 @@
 #define STARTING_IC 100
 
 typedef enum {False, True} Bool;
-
-/*
-typedef struct {
-    union {
-        struct {
-            unsigned int E:ARE_FIELD_LEN;
-            unsigned int R:ARE_FIELD_LEN;
-            unsigned int A:ARE_FIELD_LEN;
-            unsigned int funct:FUNCT_LEN;
-            unsigned int destReg:DEST_REG_LEN;
-            unsigned int destAdd:DEST_ADD_LEN;
-            unsigned int srcReg:SRC_REG_LEN;
-            unsigned int srcAdd:SRC_ADD_LEN;
-            unsigned int opcode:OPCODE_LEN;
-        } code;
-        struct {
-            long address:WORD_LEN;
-            Bool useARE;
-        } wordData;
-    } data;
-    enum {Code, wordData} type;
-} Word;
-*/
-
 
 typedef union {
     struct {
@@ -64,18 +42,39 @@ typedef union {
     } code;
 } Word;
 
+struct variables{
+        int IC;
+        int DC;
+        int lineCounter;
+        char filename[FILE_LEN];
+        FILE *file;
+        char line[LINE_LEN];
+        char symbol[LABEL_LEN];
+        Bool foundError;
+        Status status;
+        symbolTableNodePtr symbolHptr;
+        wordNodePtr dataHptr;
+        wordNodePtr codeHptr;
+};
+/*
 extern int IC;
 extern int DC;
 extern int lineCounter;
 extern Bool foundError; 
 extern char whitespace[7];
-
-typedef enum {Entry, External, Data, String, None} Type;
+extern char fileName[FILE_LEN];
+*/
+typedef enum {Entry, External, None} EntryOrExternal;
+typedef enum {Data, String, None} DataOrString;
 typedef enum {A=4,R=2,E=1} ARE;
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
 typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
-              NeedlessOperands=3, MissingOperand=4, InvalidOperand=5,
-              InvalidLabel=6, InvalidNumber=7, MultipleDirectives=8,Valid=100} Status;
+              TextAfterCommand=3, MissingOperand=4, InvalidOperand=5,
+              InvalidLabel=6, InvalidNumber=7, MultipleDirectives=8,
+              ReservedLabelName=9, LabelTooLong=10, LabelInvalidStart=11,
+              LabelInvalidCharacters=12, MissingWhitespace=13,
+              SymbolEntryAndExtern=14,
+              Valid=100,Error=-1} Status;
 
 
 

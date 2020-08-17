@@ -1,5 +1,7 @@
 #include "defaults.h"
 #include "symbolTableLinkedList.h"
+#include "firstPass.h"
+#include "secondPass.h"
 
 Bool foundError = False;
 int IC = 100;
@@ -7,37 +9,40 @@ int DC = 0;
 int lineCounter = 0;
 
 int main(int argc, char *argv[]) {
-    /*Status status;*/
-    /*int i;*/
-    
-   
-
-    printf("%d,%d,%d,%d\n",foundError,IC,DC,lineCounter);
-    
-/*
+    int i;
+    struct variables *variablesPtr;
+       
     for(i=1;i<argc;i++) {
-        FILE *f = fopen(strcat(argv[i],".as"),"r");
-        lineCounter = 0;
+        char filename[FILE_LEN+EXTENSION_LEN];
+        strcpy(filename,strcat(argv[i],".as"));
 
-        if(!f) {
-            printf("%s: Cannot open file!",argv[i]);
+        strcpy(variablesPtr->filename,filename);
+        variablesPtr->file = fopen(filename,"r");
+
+        if(!variablesPtr->file) {
+            printf("%s: Cannot open file!",filename);
             continue;
         }
 
-         check if file is empty END OF COMMENT
-        fseek(f,0,SEEK_END);
-        if(ftell(f) == 0)
+        /* check if file is empty */
+        fseek(variablesPtr->file,0,SEEK_END);
+        if(ftell(variablesPtr->file) == 0)
             continue;
-        rewind(f);
+        rewind(variablesPtr->file);
 
-        while(!feof(f)) {
-            status = firstPass(f);
-            if(status != Valid)
-                printError();
-        }
+        strcpy(variablesPtr->filename,filename);
+        variablesPtr->IC=100;
+        variablesPtr->DC=0;
+        variablesPtr->foundError=False;
+        variablesPtr->lineCounter=0;
+
+        firstPass(variablesPtr);
+        if(variablesPtr->foundError)
+            continue;
+        secondPass(variablesPtr);
         
-        fclose(f);
-    } */
+        fclose(variablesPtr->file);
+    }
 
     mini_main();
     return 0;

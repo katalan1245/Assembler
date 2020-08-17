@@ -16,7 +16,7 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
         t->symbol = malloc(LABEL_LEN);
 
     strcpy(t->symbol, node.symbol);
-    t->value = node.value;
+    t->address = node.address;
     t->location = node.location;
     t->type = node.type;
 
@@ -68,6 +68,14 @@ Bool symbolInList(symbolTableNodePtr hptr, char *symbol) {
             return True;
     }
     return False;
+}
+
+EntryOrExternal getSymbolType(symbolTableNodePtr hptr, char *symbol) {
+    while(hptr) {
+        if(!strcmp(symbol,hptr->symbol))
+            return hptr->type;
+    }
+    return None;
 }
 
 /* add the property type to the symbol str 
