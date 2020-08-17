@@ -4,7 +4,6 @@
 #include "defaults.h"
 
 typedef enum {Code, Data} Location;
-typedef enum {Entry, External, None} Type;
 
 typedef struct node *symbolTableNodePtr;
 typedef struct node {

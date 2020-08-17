@@ -70,11 +70,12 @@ extern int lineCounter;
 extern Bool foundError; 
 extern char whitespace[7];
 
+typedef enum {Entry, External, Data, String, None} Type;
 typedef enum {A=4,R=2,E=1} ARE;
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
 typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
               NeedlessOperands=3, MissingOperand=4, InvalidOperand=5,
-              InvalidLabel=6, InvalidNumber=7, Valid=100} Status;
+              InvalidLabel=6, InvalidNumber=7, MultipleDirectives=8,Valid=100} Status;
 
 
 

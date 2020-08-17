@@ -69,3 +69,20 @@ Bool symbolInList(symbolTableNodePtr hptr, char *symbol) {
     }
     return False;
 }
+
+/* add the property type to the symbol str 
+Status addEntryProperty(symbolTableNodePtr hptr, char *symbol) {
+    Bool stop;
+    stop = False;
+    if(symbolInList(hptr,symbol)) {
+        while(hptr && !stop) {
+            if(!strcmp(symbol,hptr->symbol)) {
+                if(hptr->type != None && hptr->type != type) /* if it is not it self or none, we have double directive 
+                    return MultipleDirectives;
+                hptr->type = type;
+                stop = True;
+            }
+            hptr = hptr->next;
+        }
+    }
+} */

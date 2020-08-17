@@ -179,3 +179,21 @@ char *validToken(char *tok, char *str) {
         return NULL;
     return tempStr;
 }
+
+/* return the type of the line */
+Type findType(char *str, char *symbol) {
+    char *strCopy = (char *) malloc(LINE_LEN);
+    int flag = 0;
+    strCopy += strlen(symbol);
+    strcpy(strCopy,strip(strCopy));
+    if(!strcmp(strCopy,".extern"))
+        flag = External;
+    else if(!strcmp(strCopy,".entry"))
+        flag = Entry;
+    else if(!strcmp(strCopy,".data"))
+        flag = Data;
+    else if(!strcmp(strCopy,".string"))
+        flag = String;
+    free(strCopy);
+    return flag;
+}
