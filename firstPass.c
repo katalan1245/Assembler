@@ -168,12 +168,18 @@ Status handleDirective(char *line) {
     }
     else 
     {
+    	long num;
     	while(line)
     	{
     		split(line,',',arr);
     		strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
     		if(!checkNum(arr[IMPORTANT]))
     			return InvalidOperand;
+
+    		num = atol(arr[IMPORTANT]);
+    		if(num > 8388607 || num < -8388608)
+    			return InvalidOperand;
+
     		DC++;
     		strcpy(line,strip(arr[REST]));
     	}
