@@ -49,7 +49,7 @@ typedef struct {
 typedef union {
     struct {
         unsigned long index:24;
-        Bool userARE;
+        Bool useARE;
     } data;
     struct {
         unsigned int E:ARE_FIELD_LEN;
