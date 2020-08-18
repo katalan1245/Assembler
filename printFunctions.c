@@ -9,3 +9,8 @@ void printError(Status status, char *filename) {
             break;
     }
 }
+
+void printWord(struct variables *variablesPtr,wordNodePtr wordNode) {
+    printf("%06lu ",wordNode->address);
+    printf("%06lx",word->index);
+}

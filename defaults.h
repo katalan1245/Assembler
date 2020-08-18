@@ -6,7 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 
-#define FILE_LEN 100
+#define FILE_NAME_LEN 100
 #define EXTENSION_LEN 3
 #define LINE_LEN 82
 #define LABEL_LEN 31
@@ -25,10 +25,7 @@
 typedef enum {False, True} Bool;
 
 typedef union {
-    struct {
-        unsigned long index:24;
-        Bool useARE;
-    } data;
+    unsigned long index;
     struct {
         unsigned int E:ARE_FIELD_LEN;
         unsigned int R:ARE_FIELD_LEN;
