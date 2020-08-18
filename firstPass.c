@@ -2,12 +2,6 @@
 
 #include "firstPass.h"
 
-static Bool hasSymbol;
-static Bool hasError = False;
-static symbolTableNodePtr symbolHptr;
-static wordNodePtr dataHptr;
-static wordNodePtr codeHptr;
-
 Status firstPass(struct variables *variablesPtr) {
     Statement state;
     Word word;
@@ -169,7 +163,7 @@ Status handleDirective(char *line) {
     }
     else
     	type = findType(line, "");
-
+    
     if(*line != ' ')
     	return -1;
 

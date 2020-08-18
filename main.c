@@ -3,11 +3,6 @@
 #include "firstPass.h"
 #include "secondPass.h"
 
-Bool foundError = False;
-int IC = 100;
-int DC = 0;
-int lineCounter = 0;
-
 int main(int argc, char *argv[]) {
     int i;
     struct variables *variablesPtr;

@@ -53,14 +53,7 @@ struct variables{
         wordNodePtr dataHptr;
         wordNodePtr codeHptr;
 };
-/*
-extern int IC;
-extern int DC;
-extern int lineCounter;
-extern Bool foundError; 
-extern char whitespace[7];
-extern char fileName[FILE_LEN];
-*/
+
 typedef enum {Entry, External, None} Type;
 typedef enum {Data, String, None} DataOrString;
 typedef enum {A=4,R=2,E=1} ARE;
@@ -72,8 +65,6 @@ typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
               LabelInvalidCharacters=12, MissingWhitespace=13,
               SymbolEntryAndExtern=14,
               Valid=100,Error=-1} Status;
-
-
 
 
 #endif
