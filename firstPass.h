@@ -5,7 +5,7 @@
 #include "symbolTableLinkedList.h"
 #include "dataImage.h"
 
-Status firstPass(struct variables*);
+void firstPass(struct variables*);
 Status handleInstruction(struct variables*,Word*);
 Status handleDirective(struct variables*,Word*);
 Status findInstructionsErrors(char*);

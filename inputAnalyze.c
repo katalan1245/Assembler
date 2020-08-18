@@ -171,24 +171,30 @@ char *validToken(char *tok, char *str) {
 }
 
 /* return the type of the line */
-EntryOrExternal findEntryOrExternal(char *str) {
-    char *strCopy = (char *) malloc(LINE_LEN);
+Type findEntryOrExternal(char *str) {
     EntryOrExternal flag = None;
-    if(!strcmp(str,".extern"))
+    if(!strncmp(str,".extern ", 8) || !strncmp(str,".extern\t", 8))
         flag = External;
-    else if(!strcmp(str,".entry"))
+    else if(!strcmp(str,".entry ", 7) || !strcmp(str,".entry\t", 7))
         flag = Entry;
-    free(strCopy);
     return flag;
 }
 
 DataOrString findDataOrString(char *str) {
-    char *strCopy = (char*) malloc(LINE_LEN);
     DataOrString flag = None;
-    if(!strcmp(str,".data"))
-        flag = Data;
-    else if(!strcmp(str,".string"))
-        flag = String;
-    free(strCopy);
-    return;
+    if(!strncmp(str,".data ",6) || !strncmp(str,".data\t",6))
+        flag = DataVar;
+    else if(!strncmp(str,".string ",8) || !strncmp(str,".string\t",8))
+        flag = StringVar;
+    return None;
+}
+
+/* find the first occurence of ch in the str and return the len, if not found return -1 */
+int findFromEnd(char *str, char ch) {
+    int i;
+    for(i=strlen(str)-1;i>=0;i++) {
+        if(str[i] == ch)
+            return strlen(str) - i;
+    }
+    return -1;
 }

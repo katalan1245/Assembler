@@ -3,7 +3,7 @@
 #define SYMBOL_TABLE_LINKED_LIST_H
 #include "defaults.h"
 
-typedef enum {Code, Data} Location;
+typedef enum {CodeImage, DataImage} Location;
 
 typedef struct node *symbolTableNodePtr;
 typedef struct node {

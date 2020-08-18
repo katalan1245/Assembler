@@ -54,7 +54,7 @@ struct variables{
 };
 
 typedef enum {Entry, External, None} Type;
-typedef enum {Data, String, None} DataOrString;
+typedef enum {DataVar, StringVar, None} DataOrString;
 typedef enum {A=4,R=2,E=1} ARE;
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
 typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,

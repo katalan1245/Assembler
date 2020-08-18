@@ -2,13 +2,16 @@
 
 #include "firstPass.h"
 
-Status firstPass(struct variables *variablesPtr) {
+/* Handle the first pass of the assembler */
+void firstPass(struct variables *variablesPtr) {
     Statement state;
     Word word;
 
     while(!feof(variablesPtr->file)) {
         state = getLine(variablesPtr->file, &variablesPtr->line);
         strcpy(variablesPtr->line,strip(variablesPtr->line));
+
+        /* classify which statement is the line */
 
         if(state == Invalid)
             variablesPtr->status = LineTooLong;
@@ -30,9 +33,11 @@ Status firstPass(struct variables *variablesPtr) {
 
         printError(variablesPtr);
     }
-    return Valid;
 }
 
+/* Handle the instruction statement, return the status of the statement
+ * Fill the word, update the linked list and do anything
+*/
 Status handleInstruction(struct variables *variablesPtr,Word *wordPtr) {
     char *symbol;
     char *lineCopy = (char*) malloc(LINE_LEN);
@@ -47,11 +52,10 @@ Status handleInstruction(struct variables *variablesPtr,Word *wordPtr) {
         if(status != Valid)
             return status;
 
-        status = checkAddValidLabel(variablesPtr);
+        status = checkDirectiveLabel(variablesPtr,None);
         if(status != Valid)
             return status;
 
-        if(strlen(symbol) >= strlen(lineCopy) || lineCopy[strlen(symbol)])
         addSymbol(symbol, Code);
         lineCopy+=strlen(symbol);
     }
@@ -173,73 +177,98 @@ Status fillOneOperand(char *str,Word *word, struct variables *variablesPtr)
     return Valid;
 }
 
-Status handleDirective(char *line) {
-	char *tempStr;
+Status handleDirective(struct variables *variablesPtr, Word *wordPtr) {
+	char *symbol;
+    char lineCopy[LINE_LEN];
 	Type type;
+    DataOrString varType;
+    Bool hasSymbol;
 	char arr[STRING_PARTS][LINE_LEN];
+    strcpy(lineCopy,variablesPtr->line);
+    
+    split(lineCopy," \t",arr);
+    symbol = findSymbol(arr[IMPORTANT]);
+    hasSymbol = symbol == NULL ? False : True;
+    strcpy(lineCopy,strip(arr[REST]));
+    varType = findDataOrString(lineCopy);
+    type = findEntryOrExternal(lineCopy);
+    split(lineCopy," \t",arr);
+    strcpy(arr[REST],strip(arr[REST])
 
-	tempStr = findSymbol(line);
-    if(tempStr) {
-    	type = findType(line, tempStr);
-        if(type != External && type != Entry)
-        {
-        	if(!checkValidLabel(tempStr) || symbolInList(symbolHptr,tempStr))
-        		return InvalidLabel;
-
-        	addSymbol(line);
+    if(type == None) {
+        if(varType == None)
+            return MissingDirective;
+        if(hasSymbol) {
+            strcpy(variablesPtr->symbol,symbol);
+            status = checkSyntaxValidLabel(variablesPtr);
+            if(status != Valid)
+                return status;
+            
+            status = checkDirectiveLabel(arr[REST],None);
+            if(status != Valid)
+                return status;
+            addSymbol(variablesPtr,DataImage);
+        }
+        
+        if(varType == StringVar) {
+            int ind;
+            int i;
+            ind = indFromEnd(arr[REST], '\"');
+            
+            if(arr[REST][0] != '\"')
+                return InvalidOperand;
+            if(ind == strlen(arr[REST]))
+                return NoClosingQuotes;
+            if(ind != 1)
+                return TextAfterQuotes;
+            
+            for(i=1;i<strlen(arr[REST])-2;i++) {
+                addStringWord(variablesPtr->dataHptr,arr[REST][i]);
+                variablesPtr->DC++;
+            }
+            addStringWord(variablesPtr->dataHptr,'\0');
+            return Valid;
         }
 
-        line+=strlen(tempStr);
+        if(varType == DataVar) {
+            char strCopy[LINE_LEN];
+            long num;
+            strcpy(strCopy,arr[REST]);
+            while(!strcmp(strCopy,""))
+            {
+                Word w;
+                split(strCopy,',',arr);
+                strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
+                if(checkNum(arr[IMPORTANT] != Valid))
+                    return InvalidOperand;
+
+                num = strtol(arr[IMPORTANT],NULL,10);
+                if(num > 8388607 || num < -8388608)
+                    return InvalidOperand;
+                strcpy(strCopy,strip(arr[REST]));
+                w.index = num;
+                addWordToImage(variablesPtr->dataHptr,w);
+                variablesPtr->DC++;
+            }
+            return Valid;
+        }
     }
-    else
-    	type = findType(line, "");
-    
-    if(*line != ' ')
-    	return -1;
-
-    strcpy(line,strip(line));
-
-    split(line," \t",arr);
-    strcpy(line, strip(arr[REST]));
-
-    if(type == None)
-    	return InvalidDirective;
-
-    else if(type == External || type == Entry)
-    {
-    	int oper = findAddressMethod(line);
-    	if(oper != 1)
-    		return InvalidOperand;
-    	/*need to add to list*/
-    }
-    else if(type == String)
-    {
-    	int ind = findFromEnd(line, '\"');
-    	if(*line != '\"')
-    		return InvalidOperand;
-    	if(ind == strlen(line))
-    		return NoClosingQuotes;
-    	if(ind != 1)
-    		return TextAfterQuotes;
-    	DC+=strlen(line)-2;
-    }
-    else 
-    {
-    	long num;
-    	while(line)
-    	{
-    		split(line,',',arr);
-    		strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
-    		if(!checkNum(arr[IMPORTANT]))
-    			return InvalidOperand;
-
-    		num = atol(arr[IMPORTANT]);
-    		if(num > 8388607 || num < -8388608)
-    			return InvalidOperand;
-
-    		DC++;
-    		strcpy(line,strip(arr[REST]));
-    	}
+    else if(type == Entry)
+        return checkSyntaxValidLabel(arr[REST]);
+    else {
+        symbolTableNode node;
+        status = checkSyntaxValidLabel(arr[REST]);
+        if(status != Valid)
+            return status;
+        status = checkDirectiveLabel(arr[REST],External);
+        if(status != Valid)
+            return status;
+        strcpy(node.symbol,arr[REST]);
+        node.address = 0;
+        node.location = DataImage;
+        node.type = External;
+        addToList(variablesPtr->symbolHptr,node);
+        return Valid;
     }
 
     return Valid;
@@ -253,11 +282,11 @@ void addSymbol(struct variables *variablesPtr, Location loc) {
     newSymbol.type = findType(variablesPtr);
     if(loc == Code) {
         newSymbol.address = variablesPtr->IC;
-        newSymbol.location = Code;
+        newSymbol.location = CodeImage;
     }
     else {
         newSymbol.address = variablesPtr->DC;
-        newSymbol.location = Data;
+        newSymbol.location = DataImage;
     }
     addToList(&variablesPtr->symbolHptr,newSymbol);
 }
@@ -391,4 +420,10 @@ void addNumberWord(struct variables *variablesPtr, char *str) {
     w.index <<= 3;
     w.index |= A;
     addWordToImage(variablesPtr->codeHptr,*word);
-} 
+}
+
+void addStringWord(struct variables *variablesPtr, char ch) {
+    Word w;
+    w.index = (int) ch;
+    addWordToImage(variablesPtr->dataHptr,w);
+}
