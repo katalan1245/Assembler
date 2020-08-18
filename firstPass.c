@@ -76,7 +76,6 @@ Status handleInstruction(struct variables *variablesPtr,Word *wordPtr) {
             variablesPtr->IC++;
             return Valid;
         }
-    
 }
 
 Status fillTwoOperands(char *str, Word *word, struct variables *variablesPtr)
@@ -95,7 +94,7 @@ Status fillTwoOperands(char *str, Word *word, struct variables *variablesPtr)
     if(op1 == -1 || op2 == -1)
         return InvalidOperand;
 
-	if((*word).code.opcode < 3)
+	if(word->code.opcode < 3)
 	{
 		if(op1 == 2 || op2 == 2)
 			return InvalidOperand;
@@ -108,39 +107,70 @@ Status fillTwoOperands(char *str, Word *word, struct variables *variablesPtr)
 			return InvalidOperand;
 	}
 
-    
+    word->code.ARE = A;
     word->code.srcAdd = op1;
     word->code.destReg = op2;
     word->code.srcReg = op1 == 3 ? findReg(arr[IMPORTANT]) : 0;
-    word->code.destReg = op2 == 3 ? findReg(arr[IMPORTANT]) : 0;
-	variablesPtr->IC++;
-	if(op1 <= 2)
-		variablesPtr->IC++;
-	if(op2 <= 2)
-		variablesPtr->IC++;
-        
+    word->code.destReg = op2 == 3 ? findReg(arr[REST]) : 0;
     addWordToImage(variablesPtr->codeHptr,*word);
+    variablesPtr->IC++;
+
+    if(op1 == 0) {
+        addNumberWord(variables,arr[IMPORTANT]);
+        variablesPtr->IC++;
+    }
+    else if(op1 == 1) {
+        addEmptyWord(variables);
+        variablesPtr->IC++;
+    }
+    
+    if(op2 == 0) {
+        addNumberWord(variables,arr[REST]);
+        variablesPtr->IC++;
+    }
+    else if(op2 == 1){
+        addEmptyWord(variablesPtr);
+		variablesPtr->IC++;
+    }
     return Valid;
-    /* MAINLY FINISHED WITH 2 OPERANDS */
+}
 
 Status fillOneOperand(char *str,Word *word, struct variables *variablesPtr)
-{ /* NEED TO WORK ON 1 OPERAND */
+{
 	int op;
+    word->code.srcAdd=0;
+    word->code.srcReg=0;
 	strcpy(str, strip(str));
-	if(str == '\n' || str == '\0')
+
+	if(!strcmp(str,""))
 		return MissingOperand;
 	op = findAddressMethod(str);
 
-	if(((*word).code.opcode == 5 || (*word).code.opcode ==12)&& op %2 ==0)
+	if((word->code.opcode == 5 || word->code.opcode ==12) && op % 2 == 0)
 		return InvalidOperand;
-	if((*word).code.opcode == 0 && op >2)
+	if(word->code.opcode == 9 && op % 3 == 0)
 		return InvalidOperand;
-	if((*word).code.opcode == 13 && op == 2)
+	if(word->code.opcode == 13 && op == 2)
 		return InvalidOperand;
 
-	variablesPtr->IC+=1;
-	if(op < 2)
-		variablesPtr->IC+=1;
+    word->code.ARE = A;
+    word->code.destAdd = op;
+    word->code.destReg = op == 3 ? findReg(str) : 0;
+
+    addWordToImage(variablesPtr->codeHptr,*word);
+
+	variablesPtr->IC++;
+
+	if(op == 0) {
+        addNumberWord(variables,arr[IMPORTANT]);
+        variablesPtr->IC++;
+    }
+    else if(op != 3) {
+        addEmptyWord(variables);
+        variablesPtr->IC++;
+    }
+
+    return Valid;
 }
 
 Status handleDirective(char *line) {
@@ -213,26 +243,6 @@ Status handleDirective(char *line) {
     }
 
     return Valid;
-}
-
-/* return the error, or valid if there are no errors */
-Status findInstructionsErrors(char *str) {
-    char strCopy[LINE_LEN];
-    char *symbol;
-    char arr[STRING_PARTS][LINE_LEN];
-    strcpy(strCopy,str);
-    /* detect if symbol already exist */
-    symbol = findSymbol(symbol);
-    if(symbolInList(symbolHptr,symbol))
-        return SymbolAlreadyExist;
-    /* detect unknown operation */
-    strCopy+=strlen(symbol);
-    strcpy(strCopy,strip(strCopy));
-    split(strCopy,whitespace,arr);
-    if(findOpcode(arr[IMPORTANT]) == -1)
-        return UnknownOperation;
-
-    return Valid;    
 }
 
 /* the the symbol from the variables ptr with the location loc to the list */
@@ -318,8 +328,9 @@ Status checkSyntaxValidLabel(struct variables *variablesPtr)
 	if(findOpcode(str) != -1 || findReg(str) != -1 || findType(str) != None)
 		return ReservedLabelName; /*Label with the same name of a reserved name*/
 
-    if(variablesPtr->line[strlen(str)] != " " || variablesPtr->line[strlen(str)] != "\t")
-        return MissingWhitespace;
+    if(!isspace(variablesPtr->line[strlen(str)]))
+        return MissingWhitespace
+    
 
     for(i = 1; i < strlen(str); i++) { /*check that there are only letters and numbers in the label*/
 		if(isalnum(str[i])) /* is alpha numeric */
@@ -332,9 +343,9 @@ Status checkSyntaxValidLabel(struct variables *variablesPtr)
 
 Status checkAddValidLabel(struct variables *variablesPtr,Type type) {
     
-    if(symbolInList(variablesPtr->symbolHptr,variablesPtr->symbol))
-        return SymbolAlreadyExist;
-
+    if(symbolInList(variablesPtr->symbolHptr,variablesPtr->symbol)) {
+        if(getSymbolType(variablesPtr->symbolHptr,variablesPtr->symbol) == None)
+    }
     if(strlen(variablesPtr->symbol) == strlen(variablesPtr->line))
         return MissingOperand;
 
@@ -346,9 +357,38 @@ Status checkDirectiveLabel(struct variables *variablesPtr,Type type) {
     if(symbolInList(variablesPtr->symbolHptr,variablesPtr->symbol)) {
         Type symbolType;
         symbolType = getSymbolType(variablesPtr->symbolHptr, variablesPtr->symbol);
-        if((symbolType == External && type == Entry) || (symbolType == Entry && type == External))
-            return SymbolEntryAndExtern;
+        if(symbolType == None) {
+            if(type != Entry)
+                return InvalidLabel
+        }
+
+        else if(symbolType == Entry) {
+            if(type == External)
+                return SymbolEntryAndExtern;
+            if(type == None) {
+                if(getSymbolAddress(variablesPtr->symbolHptr,variablesPtr->symbol) != -1)
+                    return SymbolAlreadyExist;
+                return Valid;
+            }
+        }
+
+        else {
+            if(type == None)
+                return SymbolDefinedAndExtern;
+            if(type == Entry)
+                return SymbolEntryAndExtern;
+        }
     }
     return Valid;
-            
 }
+
+void addNumberWord(struct variables *variablesPtr, char *str) {
+    Word w;
+    long num;
+    num = strtol(arr[IMPORTANT],NULL,10);
+    if(num < 0)
+        w.index = (long) (pow(2,21) + num);
+    w.index <<= 3;
+    w.index |= A;
+    addWordToImage(variablesPtr->codeHptr,*word);
+} 

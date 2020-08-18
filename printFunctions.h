@@ -5,3 +5,4 @@
 
 void printError(Status,char*);
 void printWord(struct variables*,wordNodePtr);
+#endif PRINT_FUNCTIONS_H

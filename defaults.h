@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #define FILE_NAME_LEN 100
 #define EXTENSION_LEN 3
@@ -18,7 +19,7 @@
 #define DEST_ADD_LEN 2
 #define DEST_REG_LEN 3
 #define FUNCT_LEN 5
-#define ARE_FIELD_LEN 1
+#define ARE_FIELD_LEN 3
 
 #define STARTING_IC 100
 
@@ -27,9 +28,7 @@ typedef enum {False, True} Bool;
 typedef union {
     unsigned long index;
     struct {
-        unsigned int E:ARE_FIELD_LEN;
-        unsigned int R:ARE_FIELD_LEN;
-        unsigned int A:ARE_FIELD_LEN;
+        unsigned int ARE:ARE_FIELD_LEN;
         unsigned int funct:FUNCT_LEN;
         unsigned int destReg:DEST_REG_LEN;
         unsigned int destAdd:DEST_ADD_LEN;
@@ -63,7 +62,7 @@ typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
               InvalidLabel=6, InvalidNumber=7, MultipleDirectives=8,
               ReservedLabelName=9, LabelTooLong=10, LabelInvalidStart=11,
               LabelInvalidCharacters=12, MissingWhitespace=13,
-              SymbolEntryAndExtern=14,
+              SymbolEntryAndExtern=14, SymbolDefinedAndExtern=15,
               Valid=100,Error=-1} Status;
 
 

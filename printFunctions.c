@@ -10,8 +10,12 @@ void printError(struct variables *variablesPtr) {
     }
 }
 
-void printWord(struct variables *variablesPtr,wordNodePtr wordNode) {
+void printAddressWord(struct variables *variablesPtr,wordNodePtr wordNode) {
     fprintf(variablesPtr->file,"%06lu ",wordNode->address);
     fprintf(variablesPtr->file,"%06lx",word->index);
+}
 
+void printCodeWode(struct variables *variablesPtr,wordNodePtr wordNode) {
+    char str[LINE_LEN];
+    sprintf(str,"%s",)
 }
