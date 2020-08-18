@@ -70,12 +70,21 @@ Bool symbolInList(symbolTableNodePtr hptr, char *symbol) {
     return False;
 }
 
-EntryOrExternal getSymbolType(symbolTableNodePtr hptr, char *symbol) {
+/* return the type of the symbol, if not exist return None */
+Type getSymbolType(symbolTableNodePtr hptr, char *symbol) {
     while(hptr) {
         if(!strcmp(symbol,hptr->symbol))
             return hptr->type;
     }
     return None;
+}
+
+int getSymbolAddress(symbolTableNodePtr hptr, char *symbol) {
+    while(hptr) {
+        if(!strcmp(symbol,hptr->symbol))
+            return hptr->address;
+    }
+    return -1
 }
 
 /* add the property type to the symbol str 

@@ -64,7 +64,7 @@ extern Bool foundError;
 extern char whitespace[7];
 extern char fileName[FILE_LEN];
 */
-typedef enum {Entry, External, None} EntryOrExternal;
+typedef enum {Entry, External, None} Type;
 typedef enum {Data, String, None} DataOrString;
 typedef enum {A=4,R=2,E=1} ARE;
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;

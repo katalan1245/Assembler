@@ -28,6 +28,12 @@ Status firstPass(struct variables *variablesPtr) {
         if(variablesPtr->status != Valid)
             variablesPtr->foundError = True;
 
+        if(!variablesPtr->foundError)
+            if(state == Directive)
+                addWordToImage(variablesPtr->dataHptr,word);
+            else
+                addWordToImage(variablesPtr->codeHptr,word);
+
         printError(variablesPtr);
     }
     return Valid;
@@ -66,7 +72,7 @@ Status handleInstruction(struct variables *variablesPtr,Word *wordPtr) {
     lineCopy += wordPtr->code.opcode == 15 ? 4 : 3; /* go to the next char after the operation */
     strcpy(lineCopy,strip(lineCopy));
     if(wordPtr->code.opcode <= 4)
-        status = fillTwoOperands(lineCopy,wordPtr); // write the function
+        status = fillTwoOperands(lineCopy,wordPtr,variablesPtr); // write the function
     else if(wordPtr->code.opcode <= 13)
         status = fillOneOperand(lineCopy,wordPtr); // write the function
     else /* operation has no operands */
@@ -316,7 +322,7 @@ Status checkSyntaxValidLabel(struct variables *variablesPtr)
 		return LabelInvalidStart; /*Doesn't start with a letter*/
 
 	if(findOpcode(str) != -1 || findReg(str) != -1 || findType(str) != None)
-		return ReservedLabelName; /*Label with the same name of a saved name*/
+		return ReservedLabelName; /*Label with the same name of a reserved name*/
 
     if(variablesPtr->line[strlen(str)] != " " || variablesPtr->line[strlen(str)] != "\t")
         return MissingWhitespace;
@@ -330,7 +336,7 @@ Status checkSyntaxValidLabel(struct variables *variablesPtr)
 }
 
 
-Status checkAddValidLabel(struct variables *variablesPtr,EntryOrExternal type) {
+Status checkAddValidLabel(struct variables *variablesPtr,Type type) {
     
     if(symbolInList(variablesPtr->symbolHptr,variablesPtr->symbol))
         return SymbolAlreadyExist;
@@ -342,12 +348,13 @@ Status checkAddValidLabel(struct variables *variablesPtr,EntryOrExternal type) {
     return Valid;
 }
 
-Status checkDirectiveLabel(struct variables *variablesPtr,EntryOrExternal type) {
+Status checkDirectiveLabel(struct variables *variablesPtr,Type type) {
     if(symbolInList(variablesPtr->symbolHptr,variablesPtr->symbol)) {
-        EntryOrExternal symbolType;
-        symbolType = getSymbolType(variablesPtr->symbolHptr,variablesPtr->symbol);
-        if(symbolType != None && symbolType != type)
+        Type symbolType;
+        symbolType = getSymbolType(variablesPtr->symbolHptr, variablesPtr->symbol);
+        if((symbolType == External && type == Entry) || (symbolType == Entry && type == External))
             return SymbolEntryAndExtern;
     }
+    return Valid;
             
 }

@@ -10,8 +10,7 @@ typedef struct node {
     char *symbol;
     int address;
     Location location;
-    EntryOrExternal type;
-    Bool defined;
+    Type type;
     symbolTableNodePtr next;
 } symbolTableNode;
 
@@ -20,6 +19,6 @@ void freeSymbolList(symbolTableNodePtr*);
 void removeFirstSymbolNode(symbolTableNodePtr*);
 void printList(symbolTableNodePtr);
 Bool symbolInList(symbolTableNodePtr,char*);
-EntryOrExternal getSymbolType(symbolTableNodePtr,char*);
+Type getSymbolType(symbolTableNodePtr,char*);
 
 #endif
