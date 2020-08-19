@@ -87,6 +87,16 @@ int getSymbolAddress(symbolTableNodePtr hptr, char *symbol) {
     return -1
 }
 
+void setType(symbolTableNodePtr hptr, char *symbol, Type t) {
+    while(hptr){
+        if(!strcmp(symbol,hptr->symbol)) {
+            hptr->type = t;
+            return;
+        }
+        hptr = hptr->next;
+    }
+}
+
 /* add the property type to the symbol str 
 Status addEntryProperty(symbolTableNodePtr hptr, char *symbol) {
     Bool stop;

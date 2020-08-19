@@ -16,6 +16,7 @@ void addWordToImage(wordNodePtr *hptr, Word word) {
     /* copy fields from node to t */
     t->address = node.address;
     t->word = node.word;
+    t->externSymbol = "";
 
     p1 = *hptr;
     p2 = NULL;
@@ -71,4 +72,31 @@ void fillWordCode(Word *word, int opcode, int srcAdd, int srcReg, int destAdd, i
     word->code.A = A;
     word->code.R = R;
     word->code.E = E;
+}
+
+int getSrcAdd(wordNodePtr hptr, int address) {
+    while(hptr) {
+        if(hptr->address == address)
+            return hptr->word.code.srcAdd;
+        hptr = hptr->next;
+    }
+    return -1;
+}
+
+int getDestAdd(wordNodePtr hptr, int address) {
+    while(hptr) {
+        if(hptr->address == address)
+            return hptr->word.code.destAdd;
+        hptr = hptr->next;
+    }
+    return -1;
+}
+
+int getOpcode(wordNodePtr hptr, int address) {
+    while(hptr) {
+        if(hptr->address == address)
+            return hptr->word.code.opcode;
+        hptr = hptr->next;
+    }
+    return -1;
 }

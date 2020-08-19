@@ -4,6 +4,7 @@
 
 typedef struct wordnode *wordNodePtr;
 typedef struct wordnode {
+    char externSymbol[LABEL_LEN];
     Word word;
     unsigned long address;
     wordNodePtr next;

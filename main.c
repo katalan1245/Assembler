@@ -8,10 +8,10 @@ int main(int argc, char *argv[]) {
     struct variables *variablesPtr;
        
     for(i=1;i<argc;i++) {
-        char filename[FILE_LEN+EXTENSION_LEN];
-        strcpy(filename,strcat(argv[i],".as"));
+        char filename[FILE_LEN+AS_OB_EXTENSION_LEN];
+        sprintf(filename,"%s.as",argv[i]);
+        strcpy(variablesPtr->filename,argv[i]);
 
-        strcpy(variablesPtr->filename,filename);
         variablesPtr->file = fopen(filename,"r");
 
         if(!variablesPtr->file) {
@@ -25,20 +25,26 @@ int main(int argc, char *argv[]) {
             continue;
         rewind(variablesPtr->file);
 
-        strcpy(variablesPtr->filename,filename);
         variablesPtr->IC=100;
         variablesPtr->DC=0;
         variablesPtr->foundError=False;
         variablesPtr->lineCounter=0;
 
         firstPass(variablesPtr);
-        if(variablesPtr->foundError)
+        if(variablesPtr->foundError) {
+            fclose(variablesPtr->file);
             continue;
+        }
         secondPass(variablesPtr);
-        
+        if(variablesPtr->foundError) {
+            fclose(variablesPtr->file);
+            continue;
+        }
+
         fclose(variablesPtr->file);
+        createOutput(variablesPtr);
+        
     }
 
-    mini_main();
     return 0;
 }

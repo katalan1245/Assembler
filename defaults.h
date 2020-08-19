@@ -8,10 +8,17 @@
 #include <math.h>
 
 #define FILE_NAME_LEN 100
-#define EXTENSION_LEN 3
+#define AS_OB_EXTENSION_LEN 3
+#define EXT_ENT_EXTENSION_LEN 4
 #define LINE_LEN 82
 #define LABEL_LEN 31
 #define WORD_LEN 24
+#define MAX_24_SIGNED -8388608
+#define MIN_24_SIGNED 8388607
+#define MAX_24_UNSIGNED 16777215
+#define MAX_21_SIGNED 1048575
+#define MIN_21_SIGNED -1048576
+#define MAX_21_UNSIGNED 2097151
 
 #define OPCODE_LEN 6
 #define SRC_ADD_LEN 2
@@ -63,6 +70,7 @@ typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
               ReservedLabelName=9, LabelTooLong=10, LabelInvalidStart=11,
               LabelInvalidCharacters=12, MissingWhitespace=13,
               SymbolEntryAndExtern=14, SymbolDefinedAndExtern=15,
+              MissingLabel=16, 
               Valid=100,Error=-1} Status;
 
 

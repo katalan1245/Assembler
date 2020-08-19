@@ -1,13 +1,13 @@
-/* IMPORTANT LABELS FUNCTIONS TO ADD !!!!!!!!!*/
-
 #include "firstPass.h"
 
 /* Handle the first pass of the assembler */
 void firstPass(struct variables *variablesPtr) {
     Statement state;
     Word word;
+    variablesPtr->lineCounter=0;
 
     while(!feof(variablesPtr->file)) {
+        variablesPtr->lineCounter++;
         state = getLine(variablesPtr->file, &variablesPtr->line);
         strcpy(variablesPtr->line,strip(variablesPtr->line));
 
@@ -33,6 +33,8 @@ void firstPass(struct variables *variablesPtr) {
 
         printError(variablesPtr);
     }
+
+    updateTables(variablesPtr);
 }
 
 /* Handle the instruction statement, return the status of the statement
@@ -56,7 +58,7 @@ Status handleInstruction(struct variables *variablesPtr,Word *wordPtr) {
         if(status != Valid)
             return status;
 
-        addSymbol(symbol, Code);
+        addSymbol(symbol, CodeImage);
         lineCopy+=strlen(symbol);
     }
     strcpy(lineCopy,strip(lineCopy));
@@ -388,20 +390,10 @@ Status checkDirectiveLabel(struct variables *variablesPtr,Type type) {
         symbolType = getSymbolType(variablesPtr->symbolHptr, variablesPtr->symbol);
         if(symbolType == None) {
             if(type != Entry)
-                return InvalidLabel
+                return InvalidLabel;
         }
 
-        else if(symbolType == Entry) {
-            if(type == External)
-                return SymbolEntryAndExtern;
-            if(type == None) {
-                if(getSymbolAddress(variablesPtr->symbolHptr,variablesPtr->symbol) != -1)
-                    return SymbolAlreadyExist;
-                return Valid;
-            }
-        }
-
-        else {
+        else if(symbolType == External){
             if(type == None)
                 return SymbolDefinedAndExtern;
             if(type == Entry)
@@ -426,4 +418,20 @@ void addStringWord(struct variables *variablesPtr, char ch) {
     Word w;
     w.index = (int) ch;
     addWordToImage(variablesPtr->dataHptr,w);
+}
+
+void updateTables(struct variables *variablesPtr) {
+    symbolTableNodePtr symbolHptr = variablesPtr->symbolHptr;
+    wordNodePtr wordHptr = variablesPtr->dataHptr;
+    while(symbolHptr) {
+        if(symbolHptr->location == DataImage) {
+            symbolHptr->address += variablesPtr->IC;
+        }
+        symbolHptr = hptr->next;
+    }
+
+    while(wordHptr) {
+        wordHptr->address+=wordHptr->IC;
+        wordHptr = wordHptr->next;
+    }
 }
