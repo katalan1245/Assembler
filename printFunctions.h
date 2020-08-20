@@ -9,4 +9,4 @@ void printWord(FILE*,wordNodePtr);
 void printExternal(FILE*,wordNodePtr);
 void printEntry(FILE*,symbolTableNodePtr);
 void createOutput(variables*);
-#endif PRINT_FUNCTIONS_H
+#endif

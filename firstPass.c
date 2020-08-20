@@ -18,19 +18,19 @@ void firstPass(variables *variablesPtr) {
             variablesPtr->status = LineTooLong;
 
         if(state == Instruction)
-            handleInstruction(variablesPtr->line,&word);
+            handleInstruction(variablesPtr,&word);
 
         if(state == Directive)
-            handleDirective(variablesPtr->line,&word);
+            handleDirective(variablesPtr,&word);
         
         if(variablesPtr->status != Valid)
             variablesPtr->foundError = True;
 
         if(!variablesPtr->foundError)
             if(state == Directive)
-                addWordToImage(variablesPtr->dataHptr,word);
+                addWordToImage(&variablesPtr->dataHptr,word);
             else
-                addWordToImage(variablesPtr->codeHptr,word);
+                addWordToImage(&variablesPtr->codeHptr,word);
 
         printError(variablesPtr);
     }
@@ -44,7 +44,6 @@ void firstPass(variables *variablesPtr) {
 void handleInstruction(variables *variablesPtr,Word *wordPtr) {
     char *lineCopy = (char*) malloc(LINE_LEN);
     char *temp = lineCopy;
-    char lineCopy[LINE_LEN];
     strcpy(lineCopy,variablesPtr->line);
     
     /* find the label */
@@ -58,7 +57,7 @@ void handleInstruction(variables *variablesPtr,Word *wordPtr) {
         if(variablesPtr->status != Valid)
             return;
 
-        addSymbol(variablesPtr->symbol, CodeImage);
+        addSymbol(variablesPtr, CodeImage);
         lineCopy+=strlen(variablesPtr->symbol);
         strcpy(lineCopy,strip(lineCopy));
     }
@@ -131,7 +130,7 @@ void fillTwoOperands(char *str, Word *word, variables *variablesPtr)
     word->code.destReg = op2;
     word->code.srcReg = op1 == 3 ? findReg(arr[IMPORTANT]) : 0;
     word->code.destReg = op2 == 3 ? findReg(arr[REST]) : 0;
-    addWordToImage(variablesPtr->codeHptr,*word);
+    addWordToImage(&variablesPtr->codeHptr,*word);
     variablesPtr->IC++;
 
     if(op1 == 0) {
@@ -181,7 +180,7 @@ void fillOneOperand(char *str,Word *word, variables *variablesPtr)
     word->code.destAdd = op;
     word->code.destReg = op == 3 ? findReg(str) : 0;
 
-    addWordToImage(variablesPtr->codeHptr,*word);
+    addWordToImage(&variablesPtr->codeHptr,*word);
 
 	variablesPtr->IC++;
 
@@ -228,7 +227,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             if(variablesPtr->status != Valid)
                 return;
             
-            checkDirectiveLabel(arr[REST],NoneEntOrExt);
+            checkDirectiveLabel(variablesPtr,NoneEntOrExt);
             if(variablesPtr->status != Valid)
                 return;
 
@@ -238,7 +237,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
         if(varType == StringVar) {
             int ind;
             int i;
-            ind = indFromEnd(arr[REST], '\"');
+            ind = findFromEnd(arr[REST], '\"');
             
             if(arr[REST][0] != '\"')
                 variablesPtr->status = InvalidOperand;
@@ -250,10 +249,10 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
                 return;
 
             for(i=1;i<strlen(arr[REST])-2;i++) {
-                addStringWord(variablesPtr->dataHptr,arr[REST][i]);
+                addStringWord(variablesPtr,arr[REST][i]);
                 variablesPtr->DC++;
             }
-            addStringWord(variablesPtr->dataHptr,'\0');
+            addStringWord(variablesPtr,'\0');
             variablesPtr->status = Valid;
         }
 
@@ -264,9 +263,9 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             while(!strcmp(strCopy,""))
             {
                 Word w;
-                split(strCopy,',',arr);
+                split(strCopy,",",arr);
                 strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
-                if(checkNum(arr[IMPORTANT] != Valid)) {
+                if(checkNum(arr[IMPORTANT]) != Valid) {
                     variablesPtr->status = InvalidOperand;
                     return;
                 }
@@ -279,21 +278,21 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
 
                 strcpy(strCopy,strip(arr[REST]));
                 w.index = num;
-                addWordToImage(variablesPtr->dataHptr,w);
+                addWordToImage(&variablesPtr->dataHptr,w);
                 variablesPtr->DC++;
             }
             variablesPtr->status = Valid;
         }
     }
     else if(type == Entry)
-        return checkSyntaxValidLabel(arr[REST]);
+        return checkSyntaxValidLabel(variablesPtr);
     else {
         symbolTableNode node;
-        checkSyntaxValidLabel(arr[REST]);
+        checkSyntaxValidLabel(variablesPtr);
         if(variablesPtr->status != Valid)
             return;
 
-        checkDirectiveLabel(arr[REST],External);
+        checkDirectiveLabel(variablesPtr,External);
         if(variablesPtr->status != Valid)
             return;
 
@@ -301,7 +300,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
         node.address = 0;
         node.location = DataImage;
         node.type = External;
-        addToList(variablesPtr->symbolHptr,node);
+        addToList(&variablesPtr->symbolHptr,node);
     }
     variablesPtr->status = Valid;
 }
@@ -326,9 +325,9 @@ int findAddressMethod(variables *variablesPtr, char *str) {
     char *ptr;
     if(*str == '#')
     {
-    	if(checkNum(++str) == Valid);
+    	if(checkNum(++str) == Valid)
     	{
-            long num = strtol(str,ptr,10);
+            long num = strtol(str,&ptr,10);
             if(*ptr != '\0')
                 return -1; /* invalid number */
             if(num > 8388607 || num < -8388608)
@@ -340,7 +339,7 @@ int findAddressMethod(variables *variablesPtr, char *str) {
 
     if(*str == '&')
     {
-        checkValidLabel(str+1);
+        checkSyntaxValidLabel(variablesPtr);
         if(variablesPtr->status != Valid)
     		return 2;
 
@@ -350,7 +349,8 @@ int findAddressMethod(variables *variablesPtr, char *str) {
     if(findReg(str) != -1)
     	return 3;
 
-    if(checkValidLabel(*(str+1)))
+    checkSyntaxValidLabel(variablesPtr);
+    if(variablesPtr->status == Valid)
     	return 1;
 
     return -1;
@@ -414,8 +414,7 @@ void checkDirectiveLabel(variables *variablesPtr,Type type) {
             }
         }
     }
-    
-    return Valid;
+    variablesPtr->status = Valid;
 }
 
 void addNumberWord(variables *variablesPtr, char *str) {
@@ -423,16 +422,18 @@ void addNumberWord(variables *variablesPtr, char *str) {
     long num;
     num = strtol(str,NULL,10);
     if(num < 0)
-        w.index = (long) (pow(2,21) + num);
+        w.index = ((long)pow(2,21) + num);
+    else
+        w.index = num;
     w.index <<= 3;
     w.index |= A;
-    addWordToImage(variablesPtr->codeHptr,w);
+    addWordToImage(&variablesPtr->codeHptr,w);
 }
 
 void addStringWord(variables *variablesPtr, char ch) {
     Word w;
     w.index = (int) ch;
-    addWordToImage(variablesPtr->dataHptr,w);
+    addWordToImage(&variablesPtr->dataHptr,w);
 }
 
 void updateTables(variables *variablesPtr) {

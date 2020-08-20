@@ -105,7 +105,7 @@ void createOutput(variables *variablesPtr) {
     dataHptr = variablesPtr->dataHptr;
     
     if(hasExternal) {
-        fprintf(str,"%s.ext",variablesPtr->filename);
+        sprintf(str,"%s.ext",variablesPtr->filename);
         file = fopen(str,"w");
         while(codeHptr) {
             if(strcmp(codeHptr->externSymbol,""))
@@ -121,7 +121,7 @@ void createOutput(variables *variablesPtr) {
     }
 
     if(hasEntry) {
-        fprintf(str,"%s.ent",variablesPtr->filename);
+        sprintf(str,"%s.ent",variablesPtr->filename);
         file = fopen(str,"w");
         while(symbolPtr) {
             if(symbolPtr->type == Entry)

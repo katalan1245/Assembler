@@ -49,7 +49,7 @@ typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
 typedef struct node *symbolTableNodePtr;
 typedef struct node {
     char *symbol;
-    int address;
+    unsigned long address;
     Location location;
     Type type;
     symbolTableNodePtr next;
