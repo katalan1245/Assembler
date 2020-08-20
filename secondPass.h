@@ -7,4 +7,7 @@
 #include "printFunctions.h"
 #include "dataImage.h"
 
+void secondPass(variables*);
+void secondInstruction(variables*,wordNodePtr*);
+Status addEntryProperty(symbolTableNodePtr,char*);
 #endif

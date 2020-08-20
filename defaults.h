@@ -31,6 +31,29 @@
 #define STARTING_IC 100
 
 typedef enum {False, True} Bool;
+typedef enum {CodeImage, DataImage} Location;
+typedef enum {Entry, External, NoneEntOrExt} Type;
+typedef enum {DataVar, StringVar, NoneDataOrStr} DataOrString;
+typedef enum {A=4,R=2,E=1} ARE;
+typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
+typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
+              TextAfterCommand=3, MissingOperand=4, InvalidOperand=5,
+              InvalidLabel=6, InvalidNumber=7, MultipleDirectives=8,
+              ReservedLabelName=9, LabelTooLong=10, LabelInvalidStart=11,
+              LabelInvalidCharacters=12, MissingWhitespace=13,
+              SymbolEntryAndExtern=14, SymbolDefinedAndExtern=15,
+              MissingLabel=16, InvalidDirectiveCommand=17,
+              NoClosingQuotes=18, ExternousText=19, ExternalBranching=20,
+              Valid=100,Error=-1} Status;
+
+typedef struct node *symbolTableNodePtr;
+typedef struct node {
+    char *symbol;
+    int address;
+    Location location;
+    Type type;
+    symbolTableNodePtr next;
+} symbolTableNode;
 
 typedef union {
     unsigned long index;
@@ -45,11 +68,19 @@ typedef union {
     } code;
 } Word;
 
-struct variables{
+typedef struct wordnode *wordNodePtr;
+typedef struct wordnode {
+    char externSymbol[LABEL_LEN];
+    Word word;
+    unsigned long address;
+    wordNodePtr next;
+} wordNode;
+
+typedef struct {
         int IC;
         int DC;
         int lineCounter;
-        char filename[FILE_LEN];
+        char filename[FILE_NAME_LEN];
         FILE *file;
         char line[LINE_LEN];
         char symbol[LABEL_LEN];
@@ -58,20 +89,7 @@ struct variables{
         symbolTableNodePtr symbolHptr;
         wordNodePtr dataHptr;
         wordNodePtr codeHptr;
-};
-
-typedef enum {Entry, External, None} Type;
-typedef enum {DataVar, StringVar, None} DataOrString;
-typedef enum {A=4,R=2,E=1} ARE;
-typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
-typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
-              TextAfterCommand=3, MissingOperand=4, InvalidOperand=5,
-              InvalidLabel=6, InvalidNumber=7, MultipleDirectives=8,
-              ReservedLabelName=9, LabelTooLong=10, LabelInvalidStart=11,
-              LabelInvalidCharacters=12, MissingWhitespace=13,
-              SymbolEntryAndExtern=14, SymbolDefinedAndExtern=15,
-              MissingLabel=16, 
-              Valid=100,Error=-1} Status;
+} variables;
 
 
 #endif

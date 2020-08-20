@@ -1,14 +1,13 @@
-#include "defaults.h"
 #include "symbolTableLinkedList.h"
 #include "firstPass.h"
 #include "secondPass.h"
 
 int main(int argc, char *argv[]) {
     int i;
-    struct variables *variablesPtr;
+    variables *variablesPtr;
        
     for(i=1;i<argc;i++) {
-        char filename[FILE_LEN+AS_OB_EXTENSION_LEN];
+        char filename[FILE_NAME_LEN+AS_OB_EXTENSION_LEN];
         sprintf(filename,"%s.as",argv[i]);
         strcpy(variablesPtr->filename,argv[i]);
 

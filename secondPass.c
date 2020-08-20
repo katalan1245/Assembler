@@ -1,6 +1,6 @@
 #include "secondPass.h"
 
-void secondPass(struct variables *variablesPtr) {
+void secondPass(variables *variablesPtr) {
     Statement state;
     wordNodePtr wordPtr;
     int tempIC;
@@ -21,22 +21,22 @@ void secondPass(struct variables *variablesPtr) {
 
         if(state == Directive) {
             Type t;
-            t = findEntryOrExternal(variablesPtr->line)
+            t = findEntryOrExternal(variablesPtr->line);
             if(t == Entry) {
                 split(variablesPtr->line," \t",arr);
-                variablesPtr->status = addEntryProperty(strip(arr[REST]));
+                variablesPtr->status = addEntryProperty(variablesPtr->symbolHptr,strip(arr[REST]));
             }
         }
         else if(state == Instruction) {
-            variablesPtr->status = secondInstruction(variablesPtr,&wordPtr);
+            secondInstruction(variablesPtr,&wordPtr);
         }
 
-        printError(variablesPtr)
+        printError(variablesPtr);
         
     }
 }
 
-void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
+void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
     static int tempIC = 100;
     int opcode = getOpcode(*wordHptr,tempIC);
     int srcAdd = getSrcAdd(*wordHptr,tempIC);
@@ -50,7 +50,7 @@ void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
     if(opcode <= 4) {
         if(srcAdd != 3) {
             tempIC++;
-            *wordHptr = *wordHptr->next;
+            (*wordHptr) = (*wordHptr)->next;
             if(srcAdd == 1) {
                 int addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
                 if(addr == -1) {
@@ -58,11 +58,11 @@ void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
                 }
                 else {
                     if(getSymbolType(variablesPtr->symbolHptr,arr[IMPORTANT]) == External) {
-                        *wordHptr->word.index = E;
-                        strcpy(*wordHptr->externSymbol,arr[IMPORTANT]);
+                        (*wordHptr)->word.index = E;
+                        strcpy((*wordHptr)->externSymbol,arr[IMPORTANT]);
                     }
                     else
-                        *wordHptr->word.index = (addr<<3) + R;
+                        (*wordHptr)->word.index = (addr<<3) + R;
                     
                 }
             }
@@ -70,7 +70,7 @@ void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
 
         if(destAdd != 3) {
             tempIC++;
-            *wordHptr = *wordHptr->next;
+            *wordHptr = (*wordHptr)->next;
             if(destAdd == 1) {
                 int addr = getSymbolAddress(variablesPtr->symbolHptr,arr[REST]);
                 if(addr == -1) {
@@ -78,11 +78,11 @@ void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
                 }
                 else {
                     if(getSymbolType(variablesPtr->symbolHptr,arr[REST]) == External) {
-                        *wordHptr->word.index = E;
-                        strcpy(*wordHptr->externSymbol,arr[REST]);
+                        (*wordHptr)->word.index = E;
+                        strcpy((*wordHptr)->externSymbol,arr[REST]);
                     }
                     else
-                        *wordHptr->word.index = (addr<<3) + R;
+                        (*wordHptr)->word.index = (addr<<3) + R;
                     
                 }
             }
@@ -90,9 +90,9 @@ void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
         
     }
     else if(opcode <= 13) {
-        if(dest != 3) {
+        if(destAdd != 3) {
            
-            *wordHptr = *wordHptr->next;
+            *wordHptr = (*wordHptr)->next;
             if(destAdd == 1) {
                 int addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
                 if(addr == -1) {
@@ -100,16 +100,16 @@ void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
                 }
                 else {
                     if(getSymbolType(variablesPtr->symbolHptr,arr[IMPORTANT]) == External) {
-                        *wordHptr->word.index = E;
-                        strcpy(*wordHptr->externSymbol,arr[IMPORTANT]);
+                        (*wordHptr)->word.index = E;
+                        strcpy((*wordHptr)->externSymbol,arr[IMPORTANT]);
                     }
                     else
-                        *wordHptr->word.index = (addr<<3) + R;
+                        (*wordHptr)->word.index = (addr<<3) + R;
                     
                 }
             }
-            else if(dest == 2) {
-                strcpy(arr[IMPORTANT],arr[IMPORTANT]+1)
+            else if(destAdd == 2) {
+                strcpy(arr[IMPORTANT],arr[IMPORTANT]+1);
                 int addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
@@ -119,7 +119,7 @@ void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
                         variablesPtr->status = ExternalBranching;
                     else {
                         int diff = addr - tempIC;
-                        *wordHptr->word.index = diff < 0 ? ((pow(2,21) + diff)<<3) + A : (diff<<3) + A; 
+                        (*wordHptr)->word.index = diff < 0 ? ((int)(pow(2,21) + diff)<<3) + A : (diff<<3) + A; 
                     }
                 }
             }
@@ -130,7 +130,7 @@ void secondInstruction(struct variables *variablesPtr,wordNodePtr *wordHptr) {
     }
 
     tempIC++;
-    *wordHptr = *wordHptr->next;
+    *wordHptr = (*wordHptr)->next;
 }
 
 Status addEntryProperty(symbolTableNodePtr hptr,char *str) {

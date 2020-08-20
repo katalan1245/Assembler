@@ -44,23 +44,6 @@ void freeSymbolList(symbolTableNodePtr *hptr) {
     }
 }
 
-// need to fix
-void removeFirstSymbolNode(symbolTableNodePtr *hptr) {
-
-    if(!hptr) {
-        printf("Cannot Remove From Empty List!");
-        return;
-    }
-    *hptr = (*hptr)->next;
-}
-
-void printList(symbolTableNodePtr hptr) {
-    while(hptr) {
-        printf("ptr: %s\n",hptr->symbol);
-        hptr = hptr->next;
-    }
-}
-
 /* check if the symbol already exist in the symbol table*/
 Bool symbolInList(symbolTableNodePtr hptr, char *symbol) {
     while(hptr) {
@@ -76,7 +59,7 @@ Type getSymbolType(symbolTableNodePtr hptr, char *symbol) {
         if(!strcmp(symbol,hptr->symbol))
             return hptr->type;
     }
-    return None;
+    return NoneEntOrExt;
 }
 
 int getSymbolAddress(symbolTableNodePtr hptr, char *symbol) {
@@ -84,7 +67,7 @@ int getSymbolAddress(symbolTableNodePtr hptr, char *symbol) {
         if(!strcmp(symbol,hptr->symbol))
             return hptr->address;
     }
-    return -1
+    return -1;
 }
 
 void setType(symbolTableNodePtr hptr, char *symbol, Type t) {
@@ -96,20 +79,3 @@ void setType(symbolTableNodePtr hptr, char *symbol, Type t) {
         hptr = hptr->next;
     }
 }
-
-/* add the property type to the symbol str 
-Status addEntryProperty(symbolTableNodePtr hptr, char *symbol) {
-    Bool stop;
-    stop = False;
-    if(symbolInList(hptr,symbol)) {
-        while(hptr && !stop) {
-            if(!strcmp(symbol,hptr->symbol)) {
-                if(hptr->type != None && hptr->type != type) /* if it is not it self or none, we have double directive 
-                    return MultipleDirectives;
-                hptr->type = type;
-                stop = True;
-            }
-            hptr = hptr->next;
-        }
-    }
-} */

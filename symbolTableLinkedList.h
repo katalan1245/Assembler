@@ -3,22 +3,10 @@
 #define SYMBOL_TABLE_LINKED_LIST_H
 #include "defaults.h"
 
-typedef enum {CodeImage, DataImage} Location;
-
-typedef struct node *symbolTableNodePtr;
-typedef struct node {
-    char *symbol;
-    int address;
-    Location location;
-    Type type;
-    symbolTableNodePtr next;
-} symbolTableNode;
-
 void addToList(symbolTableNodePtr*,symbolTableNode);
 void freeSymbolList(symbolTableNodePtr*);
-void removeFirstSymbolNode(symbolTableNodePtr*);
-void printList(symbolTableNodePtr);
 Bool symbolInList(symbolTableNodePtr,char*);
 Type getSymbolType(symbolTableNodePtr,char*);
-
+int getSymbolAddress(symbolTableNodePtr,char*);
+void setType(symbolTableNodePtr,char*,Type);
 #endif

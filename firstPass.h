@@ -5,13 +5,18 @@
 #include "symbolTableLinkedList.h"
 #include "dataImage.h"
 
-void firstPass(struct variables*);
-Status handleInstruction(struct variables*,Word*);
-Status handleDirective(struct variables*,Word*);
-Status findInstructionsErrors(char*);
-void addSymbol(struct variables*,Location);
-char *findSymbol(char*);
-EntryOrExternal findEntryOrExternal(char*);
-DataOrString findDataOrString(char*);
-
+void firstPass(variables*);
+void handleInstruction(variables*,Word*);
+void fillTwoOperands(char*,Word*,variables*);
+void fillOneOperand(char*,Word*,variables*);
+void handleDirective(variables*,Word*);
+void addSymbol(variables*,Location);
+int findAddressMethod(variables*,char*);
+Status checkNum(char*);
+void checkSyntaxValidLabel(variables*);
+void checkDirectiveLabel(variables*,Type);
+void addNumberWord(variables*,char*);
+void addStringWord(variables*,char);
+void updateTables(variables*);
+void defaultValues(variables*);
 #endif

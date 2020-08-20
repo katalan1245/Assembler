@@ -1,7 +1,7 @@
 #include "printFunctions.h"
 
-void printError(struct variables *variablesPtr) {
-    switch (status) {
+void printError(variables *variablesPtr) {
+    switch (variablesPtr->status) {
         case LineTooLong:
             printf("%s.as,%d: Line too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
             break;
@@ -47,9 +47,6 @@ void printError(struct variables *variablesPtr) {
        	case SymbolEntryAndExtern:
        		printf("%s.as,%d: A symbol cannot be both entry and external.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
-       	case SymbolEntryAndExtern:
-       		printf("%s.as,%d: A symbol cannot be both entry and external.\n",variablesPtr->filename,variablesPtr->lineCounter);
-       		break;
        	case SymbolDefinedAndExtern:
        		printf("%s.as,%d: A symbol cannot be both external and defined in this file.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
@@ -75,11 +72,11 @@ void printExternal(FILE *f, wordNodePtr wordPtr) {
     fprintf(f,"%s %06lu\n",wordPtr->externSymbol,wordPtr->address);
 }
 
-void printEntry(File *f, symbolTableNodePtr symbolPtr) {
+void printEntry(FILE *f, symbolTableNodePtr symbolPtr) {
     fprintf(f,"%s %06lu\n",symbolPtr->symbol,symbolPtr->address);
 }
 
-void createOutput(struct variables *variablesPtr) {
+void createOutput(variables *variablesPtr) {
     Bool hasEntry = False;
     Bool hasExternal = False;
     FILE *file;

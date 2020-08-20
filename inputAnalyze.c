@@ -1,9 +1,6 @@
-#include "defaults.h"
 #include "inputAnalyze.h"
 
-char whitespace[7] = " \t\n\v\f\r";
-
-Statement getLine(FILE *f,char **str) {
+Statement getLine(FILE *f,char *str[LINE_LEN]) {
     Statement state;
     
     fgets(*str,LINE_LEN,f);
@@ -83,7 +80,7 @@ int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
 int findOpcode(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
     char oper[LINE_LEN];
-    split(str,whitespace,arr);
+    split(str," \t",arr);
     strcpy(oper,arr[IMPORTANT]);
     if(!strcmp(oper,"mov"))
         return 0;
@@ -112,7 +109,7 @@ int findOpcode(char *str) {
 int findReg(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
     char oper[LINE_LEN];
-    split(str,whitespace,arr);
+    split(str," \t",arr);
     strcpy(oper,strip(arr[IMPORTANT]));
 
     if(!strcmp(oper,"r0"))
@@ -138,7 +135,7 @@ int findReg(char *str) {
 int findFunct(char *str) {
     char arr[STRING_PARTS][LINE_LEN];
     char oper[LINE_LEN];
-    split(str,whitespace,arr);
+    split(str," \t",arr);
     strcpy(oper,arr[IMPORTANT]);
     if(!strcmp(oper,"add") || !strcmp(oper,"clr") || !strcmp(oper,"jmp"))
         return 1;
@@ -151,7 +148,7 @@ int findFunct(char *str) {
     return 0;
 }
 
-/* return NULL if the token is not valid, or the string if this is a real token */
+/* return empty string if the token is not valid, or the string if this is a real token */
 char *validToken(char *tok, char *str) {
     char arr[STRING_PARTS][LINE_LEN];
     char *tempStr = (char*) malloc(LINE_LEN);
@@ -160,33 +157,33 @@ char *validToken(char *tok, char *str) {
 
     del = split(str,tok,arr);
     if(del == DELIM_NOT_EXIST)
-        return NULL;
+        return "";
     len1 = strlen(arr[IMPORTANT]);
     strcpy(tempStr,arr[IMPORTANT]);
     split(str,"\"",arr);
     len2 = strlen(arr[IMPORTANT]);
     if(len1 > len2)
-        return NULL;
+        return "";
     return tempStr;
 }
 
 /* return the type of the line */
 Type findEntryOrExternal(char *str) {
-    EntryOrExternal flag = None;
+    Type flag = NoneEntOrExt;
     if(!strncmp(str,".extern ", 8) || !strncmp(str,".extern\t", 8))
         flag = External;
-    else if(!strcmp(str,".entry ", 7) || !strcmp(str,".entry\t", 7))
+    else if(!strncmp(str,".entry ", 7) || !strncmp(str,".entry\t", 7))
         flag = Entry;
     return flag;
 }
 
 DataOrString findDataOrString(char *str) {
-    DataOrString flag = None;
+    DataOrString flag = NoneDataOrStr;
     if(!strncmp(str,".data ",6) || !strncmp(str,".data\t",6))
         flag = DataVar;
     else if(!strncmp(str,".string ",8) || !strncmp(str,".string\t",8))
         flag = StringVar;
-    return None;
+    return flag;
 }
 
 /* find the first occurence of ch in the str and return the len, if not found return -1 */
@@ -197,4 +194,9 @@ int findFromEnd(char *str, char ch) {
             return strlen(str) - i;
     }
     return -1;
+}
+
+/* return the symbol, "" if there is no symbol */
+char *findSymbol(char *str) {
+    return validToken(":",str);
 }
