@@ -26,12 +26,6 @@ void firstPass(variables *variablesPtr) {
         if(variablesPtr->status != Valid)
             variablesPtr->foundError = True;
 
-        if(!variablesPtr->foundError)
-            if(state == Directive)
-                addWordToImage(&variablesPtr->dataHptr,word);
-            else
-                addWordToImage(&variablesPtr->codeHptr,word);
-
         printError(variablesPtr);
     }
 
@@ -72,9 +66,9 @@ void handleInstruction(variables *variablesPtr,Word *wordPtr) {
     lineCopy += wordPtr->code.opcode == 15 ? 4 : 3; /* go to the next char after the operation */
     strcpy(lineCopy,strip(lineCopy));
     if(wordPtr->code.opcode <= 4)
-        fillTwoOperands(lineCopy,wordPtr,variablesPtr); // write the function
+        fillTwoOperands(lineCopy,wordPtr,variablesPtr);
     else if(wordPtr->code.opcode <= 13)
-        fillOneOperand(lineCopy,wordPtr,variablesPtr); // write the function
+        fillOneOperand(lineCopy,wordPtr,variablesPtr);
     else { /* operation has no operands */
         if(strcmp(lineCopy,"")) /* if there is text left raise error */
             variablesPtr->status = TextAfterCommand;
@@ -130,7 +124,7 @@ void fillTwoOperands(char *str, Word *word, variables *variablesPtr)
     word->code.destReg = op2;
     word->code.srcReg = op1 == 3 ? findReg(arr[IMPORTANT]) : 0;
     word->code.destReg = op2 == 3 ? findReg(arr[REST]) : 0;
-    addWordToImage(&variablesPtr->codeHptr,*word);
+    addWordToImage(&variablesPtr->codeHptr,*word,variablesPtr->IC);
     variablesPtr->IC++;
 
     if(op1 == 0) {
@@ -180,7 +174,7 @@ void fillOneOperand(char *str,Word *word, variables *variablesPtr)
     word->code.destAdd = op;
     word->code.destReg = op == 3 ? findReg(str) : 0;
 
-    addWordToImage(&variablesPtr->codeHptr,*word);
+    addWordToImage(&variablesPtr->codeHptr,*word,variablesPtr->IC);
 
 	variablesPtr->IC++;
 
@@ -278,7 +272,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
 
                 strcpy(strCopy,strip(arr[REST]));
                 w.index = num;
-                addWordToImage(&variablesPtr->dataHptr,w);
+                addWordToImage(&variablesPtr->dataHptr,w,variablesPtr->DC);
                 variablesPtr->DC++;
             }
             variablesPtr->status = Valid;
@@ -427,13 +421,13 @@ void addNumberWord(variables *variablesPtr, char *str) {
         w.index = num;
     w.index <<= 3;
     w.index |= A;
-    addWordToImage(&variablesPtr->codeHptr,w);
+    addWordToImage(&variablesPtr->codeHptr,w,variablesPtr->IC);
 }
 
 void addStringWord(variables *variablesPtr, char ch) {
     Word w;
     w.index = (int) ch;
-    addWordToImage(&variablesPtr->dataHptr,w);
+    addWordToImage(&variablesPtr->dataHptr,w,variablesPtr->DC);
 }
 
 void updateTables(variables *variablesPtr) {
@@ -456,4 +450,10 @@ void defaultValues(variables *variablesPtr) {
     variablesPtr->status = Valid;
     strcpy(variablesPtr->symbol,"");
     strcpy(variablesPtr->line,"");
+}
+
+void addEmptyWord(variables *variablesPtr) {
+    Word w;
+    w.index = 0;
+    addWordToImage(&variablesPtr->codeHptr,w,variablesPtr->IC);
 }

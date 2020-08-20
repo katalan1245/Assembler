@@ -1,12 +1,9 @@
 #include "dataImage.h"
 
-void addWordToImage(wordNodePtr *hptr, Word word) {
+void addWordToImage(wordNodePtr *hptr, Word word, unsigned long adderss) {
     wordNodePtr p1,p2;
     wordNodePtr t;
-    wordNode node;
-
-    node.word = word;
-
+    
     t = (wordNodePtr) malloc(sizeof(wordNode));
     if(!t) {
         printf("Malloc Failed- Cannot Build List!");
@@ -14,8 +11,8 @@ void addWordToImage(wordNodePtr *hptr, Word word) {
     }
 
     /* copy fields from node to t */
-    t->address = node.address;
-    t->word = node.word;
+    t->address = adderss;
+    t->word = word;
     strcpy(t->externSymbol,"");
 
     p1 = *hptr;

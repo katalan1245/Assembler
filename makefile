@@ -1,10 +1,10 @@
 assebmly: dataImage.o  firstPass.o inputAnalyze.o main.o printFunctions.o secondPass.o symbolTableLinkedList.o
-	gcc -g basChanging.o dataImage.o  firstPass.o inputAnalyze.o main.o printFunctions.o secondPass.o symbolTableLinkedList.o -o assebmly -lm
+	gcc -g dataImage.o firstPass.o inputAnalyze.o main.o printFunctions.o secondPass.o symbolTableLinkedList.o -o assebmly -lm
 
 dataImage.o: dataImage.c dataImage.h defaults.h
 	gcc -c dataImage.c -Wall -pedantic -ansi -o dataImage.o
 
-firstPass.o: firstPass.c firstPass.h defaults.h inputAnalyze.h symbolTableLinkedList.h dataImage.h
+firstPass.o: firstPass.c firstPass.h defaults.h inputAnalyze.h symbolTableLinkedList.h dataImage.h printFunctions.h
 	gcc -c firstPass.c -Wall -pedantic -ansi -o firstPass.o
 
 inputAnalyze.o: inputAnalyze.c inputAnalyze.h defaults.h

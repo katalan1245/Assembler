@@ -3,6 +3,7 @@
 #include "defaults.h"
 #include "inputAnalyze.h"
 #include "symbolTableLinkedList.h"
+#include "printFunctions.h"
 #include "dataImage.h"
 
 void firstPass(variables*);
@@ -19,4 +20,5 @@ void addNumberWord(variables*,char*);
 void addStringWord(variables*,char);
 void updateTables(variables*);
 void defaultValues(variables*);
+void addEmptyWord(variables*);
 #endif

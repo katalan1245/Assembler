@@ -6,12 +6,11 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
     symbolTableNodePtr t;
 
     t = (symbolTableNodePtr) malloc(sizeof(symbolTableNode));
-    if(!t) { // if cannot allocate memory
+    if(!t) {
         printf("Cannot Build List!\n");
         exit(0);
     }
 
-    // copy the fields from node to t
     if(!t->symbol)
         t->symbol = malloc(LABEL_LEN);
 
