@@ -3,8 +3,6 @@
 void secondPass(variables *variablesPtr) {
     Statement state;
     wordNodePtr wordPtr;
-    int tempIC;
-    int tempDC;
     char *symbol;
     char arr[STRING_PARTS][LINE_LEN];
     wordPtr = variablesPtr->codeHptr;
@@ -12,7 +10,7 @@ void secondPass(variables *variablesPtr) {
 
     while(!feof(variablesPtr->file)) {
         variablesPtr->lineCounter++;
-        state = getLine(variablesPtr->file,&variablesPtr->line);
+        state = getLine(variablesPtr->file,variablesPtr->line);
         symbol = findSymbol(variablesPtr->line);
         if(symbol) {
             split(variablesPtr->line," \t",arr);
@@ -41,7 +39,6 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
     int opcode = getOpcode(*wordHptr,tempIC);
     int srcAdd = getSrcAdd(*wordHptr,tempIC);
     int destAdd = getDestAdd(*wordHptr,tempIC);
-    wordNodePtr hptr = *wordHptr;
     char arr[STRING_PARTS][LINE_LEN];
     split(variablesPtr->line," \t",arr);
     split(strip(arr[REST]),",",arr);
@@ -52,7 +49,8 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
             tempIC++;
             (*wordHptr) = (*wordHptr)->next;
             if(srcAdd == 1) {
-                int addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
+                int addr;
+                addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
                 }
@@ -72,7 +70,8 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
             tempIC++;
             *wordHptr = (*wordHptr)->next;
             if(destAdd == 1) {
-                int addr = getSymbolAddress(variablesPtr->symbolHptr,arr[REST]);
+                int addr;
+                addr = getSymbolAddress(variablesPtr->symbolHptr,arr[REST]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
                 }
@@ -94,7 +93,8 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
            
             *wordHptr = (*wordHptr)->next;
             if(destAdd == 1) {
-                int addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
+                int addr;
+                addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
                 }
@@ -109,8 +109,9 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
                 }
             }
             else if(destAdd == 2) {
+                int addr;
                 strcpy(arr[IMPORTANT],arr[IMPORTANT]+1);
-                int addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
+                addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
                 }

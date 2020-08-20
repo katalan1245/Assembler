@@ -9,7 +9,7 @@
 #define DELIM_EXIST 0
 #define DELIM_NOT_EXIST 1
 
-Statement getLine(FILE *,char *str[LINE_LEN]);
+Statement getLine(FILE *,char str[LINE_LEN]);
 Statement firstCheck(char*);
 char *strip(char*);
 int split(char*,char*,char[STRING_PARTS][LINE_LEN]);

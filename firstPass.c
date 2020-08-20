@@ -8,7 +8,7 @@ void firstPass(variables *variablesPtr) {
 
     while(!feof(variablesPtr->file)) {
         variablesPtr->lineCounter++;
-        state = getLine(variablesPtr->file, &(variablesPtr->line));
+        state = getLine(variablesPtr->file, variablesPtr->line);
         strcpy(variablesPtr->line,strip(variablesPtr->line));
         defaultValues(variablesPtr);
 
@@ -192,7 +192,6 @@ void fillOneOperand(char *str,Word *word, variables *variablesPtr)
 
 void handleDirective(variables *variablesPtr, Word *wordPtr) {
     char lineCopy[LINE_LEN];
-    char *temp = lineCopy;
 	Type type;
     DataOrString varType;
     Bool hasSymbol;
@@ -238,7 +237,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             if(ind == strlen(arr[REST]))
                 variablesPtr->status = NoClosingQuotes;
             if(ind != 1)
-                variablesPtr->status = ExternousText;
+                variablesPtr->status = ExtraneousText;
             if(variablesPtr->status != Valid)
                 return;
 
@@ -278,8 +277,10 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             variablesPtr->status = Valid;
         }
     }
-    else if(type == Entry)
-        return checkSyntaxValidLabel(variablesPtr);
+    else if(type == Entry) {
+        checkSyntaxValidLabel(variablesPtr);
+        return;
+    }
     else {
         symbolTableNode node;
         checkSyntaxValidLabel(variablesPtr);

@@ -1,11 +1,11 @@
 #include "inputAnalyze.h"
 
-Statement getLine(FILE *f,char *str[LINE_LEN]) {
+Statement getLine(FILE *f,char str[LINE_LEN]) {
     Statement state;
     
-    fgets(*str,LINE_LEN,f);
+    fgets(str,LINE_LEN,f);
 
-    state = firstCheck(*str);
+    state = firstCheck(str);
     return state;
 }
 

@@ -3,59 +3,71 @@
 void printError(variables *variablesPtr) {
     switch (variablesPtr->status) {
         case LineTooLong:
-            printf("%s.as,%d: Line too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            fprintf(stderr,"%s.as,%d: Line too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
             break;
         case UnknownOperation:
-        	printf("%s.as,%d: Unknown operation.\n",variablesPtr->filename,variablesPtr->lineCounter);
+        	fprintf(stderr,"%s.as,%d: Unknown operation.\n",variablesPtr->filename,variablesPtr->lineCounter);
         	break;
        	case SymbolAlreadyExist:
-       		printf("%s.as,%d: Symbol already exists.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Symbol already exists.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case TextAfterCommand: 
-       		printf("%s.as,%d: Text after command.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Text after command.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MissingOperand:
-       		printf("%s.as,%d: Missing operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Missing operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidOperand:
-       		printf("%s.as,%d: Invalid operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Invalid operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidLabel:
-       		printf("%s.as,%d: Invalid label.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Invalid label.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidNumber:
-       		printf("%s.as,%d: Invalid number.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Invalid number.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MultipleDirectives:
-       		printf("%s.as,%d: Multiple directives.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Multiple directives.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case ReservedLabelName:
-       		printf("%s.as,%d: Label name is a reserved name.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Label name is a reserved name.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case LabelTooLong:
-       		printf("%s.as,%d: Label is too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Label is too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case LabelInvalidStart:
-       		printf("%s.as,%d: The first char in a label must be a letter.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: The first char in a label must be a letter.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case LabelInvalidCharacters:
-       		printf("%s.as,%d: A label can only consist of letters and numbers.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: A label can only consist of letters and numbers.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MissingWhitespace:
-       		printf("%s.as,%d: Missing whitespace.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Missing whitespace.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case SymbolEntryAndExtern:
-       		printf("%s.as,%d: A symbol cannot be both entry and external.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: A symbol cannot be both entry and external.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case SymbolDefinedAndExtern:
-       		printf("%s.as,%d: A symbol cannot be both external and defined in this file.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: A symbol cannot be both external and defined in this file.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MissingLabel:
-       		printf("%s.as,%d: Label doesn't exist.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stderr,"%s.as,%d: Label doesn't exist.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
-       	case Error:
-       		printf("%s.as,%d: Error.\n",variablesPtr->filename,variablesPtr->lineCounter);
+        case InvalidDirectiveCommand:
+          fprintf(stderr,"%s.as,%d: Invalid directive command.\n",variablesPtr->filename,variablesPtr->lineCounter);
+          break;
+        case NoClosingQuotes:
+          fprintf(stderr,"%s.as,%d: No closing quotes for string.\n",variablesPtr->filename,variablesPtr->lineCounter);
+          break;
+        case ExtraneousText:
+          fprintf(stderr,"%s.as,%d: Extraneous text after string.\n",variablesPtr->filename,variablesPtr->lineCounter);
+          break;
+       	case ExternalBranching:
+       		fprintf(stderr,"%s.as,%d: Trying to jump to external label using address method 2.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
+         case Error:
+          fprintf(stderr,"%s.as,%d: Error.\n",variablesPtr->filename,variablesPtr->lineCounter);
+          break;
         case Valid:
             break;
     }

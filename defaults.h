@@ -43,7 +43,7 @@ typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
               LabelInvalidCharacters=12, MissingWhitespace=13,
               SymbolEntryAndExtern=14, SymbolDefinedAndExtern=15,
               MissingLabel=16, InvalidDirectiveCommand=17,
-              NoClosingQuotes=18, ExternousText=19, ExternalBranching=20,
+              NoClosingQuotes=18, ExtraneousText=19, ExternalBranching=20,
               Valid=100,Error=-1} Status;
 
 typedef struct node *symbolTableNodePtr;

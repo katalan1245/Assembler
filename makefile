@@ -20,4 +20,4 @@ secondPass.o: secondPass.c secondPass.h defaults.h firstPass.h inputAnalyze.h sy
 	gcc -c secondPass.c -Wall -pedantic -ansi -o secondPass.o
 
 symbolTableLinkedList.o: symbolTableLinkedList.c symbolTableLinkedList.h defaults.h
-	gcc -c main.c -Wall -pedantic -ansi -o symbolTableLinkedList.o
+	gcc -c symbolTableLinkedList.c -Wall -pedantic -ansi -o symbolTableLinkedList.o
