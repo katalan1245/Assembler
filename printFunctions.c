@@ -3,70 +3,70 @@
 void printError(variables *variablesPtr) {
     switch (variablesPtr->status) {
         case LineTooLong:
-            fprintf(stderr,"%s.as,%d: Line too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            fprintf(stdout,"%s.as:%d: Line too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
             break;
         case UnknownOperation:
-        	fprintf(stderr,"%s.as,%d: Unknown operation.\n",variablesPtr->filename,variablesPtr->lineCounter);
+        	fprintf(stdout,"%s.as:%d: Unknown operation.\n",variablesPtr->filename,variablesPtr->lineCounter);
         	break;
        	case SymbolAlreadyExist:
-       		fprintf(stderr,"%s.as,%d: Symbol already exists.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Symbol already exists.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case TextAfterCommand: 
-       		fprintf(stderr,"%s.as,%d: Text after command.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Text after command.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MissingOperand:
-       		fprintf(stderr,"%s.as,%d: Missing operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Missing operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidOperand:
-       		fprintf(stderr,"%s.as,%d: Invalid operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Invalid operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidLabel:
-       		fprintf(stderr,"%s.as,%d: Invalid label.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Invalid label.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidNumber:
-       		fprintf(stderr,"%s.as,%d: Invalid number.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Invalid number.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MultipleDirectives:
-       		fprintf(stderr,"%s.as,%d: Multiple directives.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Multiple directives.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case ReservedLabelName:
-       		fprintf(stderr,"%s.as,%d: Label name is a reserved name.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Label name is a reserved name.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case LabelTooLong:
-       		fprintf(stderr,"%s.as,%d: Label is too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Label is too long.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case LabelInvalidStart:
-       		fprintf(stderr,"%s.as,%d: The first char in a label must be a letter.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: The first char in a label must be a letter.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case LabelInvalidCharacters:
-       		fprintf(stderr,"%s.as,%d: A label can only consist of letters and numbers.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: A label can only consist of letters and numbers.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MissingWhitespace:
-       		fprintf(stderr,"%s.as,%d: Missing whitespace.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Missing whitespace.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case SymbolEntryAndExtern:
-       		fprintf(stderr,"%s.as,%d: A symbol cannot be both entry and external.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: A symbol cannot be both entry and external.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case SymbolDefinedAndExtern:
-       		fprintf(stderr,"%s.as,%d: A symbol cannot be both external and defined in this file.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: A symbol cannot be both external and defined in this file.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MissingLabel:
-       		fprintf(stderr,"%s.as,%d: Label doesn't exist.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Label doesn't exist.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
         case InvalidDirectiveCommand:
-          fprintf(stderr,"%s.as,%d: Invalid directive command.\n",variablesPtr->filename,variablesPtr->lineCounter);
+          fprintf(stdout,"%s.as:%d: Invalid directive command.\n",variablesPtr->filename,variablesPtr->lineCounter);
           break;
         case NoClosingQuotes:
-          fprintf(stderr,"%s.as,%d: No closing quotes for string.\n",variablesPtr->filename,variablesPtr->lineCounter);
+          fprintf(stdout,"%s.as:%d: No closing quotes for string.\n",variablesPtr->filename,variablesPtr->lineCounter);
           break;
         case ExtraneousText:
-          fprintf(stderr,"%s.as,%d: Extraneous text after string.\n",variablesPtr->filename,variablesPtr->lineCounter);
+          fprintf(stdout,"%s.as:%d: Extraneous text after string.\n",variablesPtr->filename,variablesPtr->lineCounter);
           break;
        	case ExternalBranching:
-       		fprintf(stderr,"%s.as,%d: Trying to jump to external label using address method 2.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Trying to jump to external label using address method 2.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
          case Error:
-          fprintf(stderr,"%s.as,%d: Error.\n",variablesPtr->filename,variablesPtr->lineCounter);
+          fprintf(stdout,"%s.as:%d: Error.\n",variablesPtr->filename,variablesPtr->lineCounter);
           break;
         case Valid:
             break;

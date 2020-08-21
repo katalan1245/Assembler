@@ -11,9 +11,6 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
         exit(0);
     }
 
-    if(!t->symbol)
-        t->symbol = malloc(LABEL_LEN);
-
     strcpy(t->symbol, node.symbol);
     t->address = node.address;
     t->location = node.location;
@@ -48,6 +45,7 @@ Bool symbolInList(symbolTableNodePtr hptr, char *symbol) {
     while(hptr) {
         if(!strcmp(symbol,hptr->symbol))
             return True;
+        hptr = hptr->next;
     }
     return False;
 }
@@ -57,6 +55,7 @@ Type getSymbolType(symbolTableNodePtr hptr, char *symbol) {
     while(hptr) {
         if(!strcmp(symbol,hptr->symbol))
             return hptr->type;
+        hptr = hptr->next;
     }
     return NoneEntOrExt;
 }
@@ -65,6 +64,7 @@ int getSymbolAddress(symbolTableNodePtr hptr, char *symbol) {
     while(hptr) {
         if(!strcmp(symbol,hptr->symbol))
             return hptr->address;
+        hptr = hptr->next;
     }
     return -1;
 }

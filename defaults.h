@@ -48,7 +48,7 @@ typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
 
 typedef struct node *symbolTableNodePtr;
 typedef struct node {
-    char *symbol;
+    char symbol[LABEL_LEN];
     unsigned long address;
     Location location;
     Type type;
@@ -80,7 +80,7 @@ typedef struct {
         int IC;
         int DC;
         int lineCounter;
-        char filename[FILE_NAME_LEN];
+        char    filename[FILE_NAME_LEN];
         FILE *file;
         char line[LINE_LEN];
         char symbol[LABEL_LEN];

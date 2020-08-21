@@ -1,11 +1,11 @@
 #include "inputAnalyze.h"
 
-Statement getLine(FILE *f,char str[LINE_LEN]) {
+Statement getLine(variables *variablesPtr) {
     Statement state;
     
-    fgets(str,LINE_LEN,f);
-
-    state = firstCheck(str);
+    fgets(variablesPtr->line,LINE_LEN,variablesPtr->file);
+    
+    state = firstCheck(variablesPtr->line);
     return state;
 }
 
@@ -19,8 +19,10 @@ Statement firstCheck(char *str) {
         return Empty;
     if(str[0] == ';') /* first char is ; */
         return Comment;
-    if(validToken(".",str))
+    if(split(str,".",arr) == DELIM_EXIST)
         return Directive;
+    /*if(strcmp(validToken(".",str),""))
+        return Directive;*/
     return Instruction;
 }
 
@@ -29,7 +31,7 @@ char *strip(char *str) {
     size_t size;
     char *end;
     /* if string empty, return it */
-    size = strlen(str) - 1;
+    size = strlen(str);
     if (!size)
         return str;
 
@@ -59,13 +61,13 @@ int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
     for(i=0;i<strlen(delim);i++) {
         if(str[0] == delim[i]) {
             strcpy(arr[IMPORTANT],"");
-            strcpy(arr[REST],strCopy);
+            strcpy(arr[REST],strCopy+1);
             return DELIM_EXIST;
         }
     }
 
     tok = strtok(strCopy, delim); /* look for the first token */
-    if (strlen(tok) == strlen(str)) {
+    if (tok != NULL &&strlen(tok) == strlen(str)) {
         strcpy(arr[IMPORTANT], str);
         strcpy(arr[REST], "");
         return DELIM_NOT_EXIST;
@@ -149,7 +151,7 @@ int findFunct(char *str) {
 }
 
 /* return empty string if the token is not valid, or the string if this is a real token */
-char *validToken(char *tok, char *str) {
+char *validToken(char *tok, char *str) { /*
     char arr[STRING_PARTS][LINE_LEN];
     char *tempStr = (char*) malloc(LINE_LEN);
     int del;
@@ -164,7 +166,8 @@ char *validToken(char *tok, char *str) {
     len2 = strlen(arr[IMPORTANT]);
     if(len1 > len2)
         return "";
-    return tempStr;
+    return tempStr; */
+    return "";
 }
 
 /* return the type of the line */
@@ -198,5 +201,13 @@ int findFromEnd(char *str, char ch) {
 
 /* return the symbol, "" if there is no symbol */
 char *findSymbol(char *str) {
-    return validToken(":",str);
+    char *strCopy = (char*)  malloc(LINE_LEN);
+    char arr[STRING_PARTS][LINE_LEN];
+    strcpy(strCopy,str);
+    if(split(strCopy,":",arr) == DELIM_EXIST)
+        strcpy(strCopy,arr[IMPORTANT]);
+    else
+        strcpy(strCopy,"");
+    return strCopy;
+    /*return validToken(":",str);*/
 }

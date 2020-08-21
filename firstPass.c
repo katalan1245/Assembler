@@ -7,8 +7,10 @@ void firstPass(variables *variablesPtr) {
     variablesPtr->lineCounter=0;
 
     while(!feof(variablesPtr->file)) {
+        state = getLine(variablesPtr);
+        if(feof(variablesPtr->file))
+            break;
         variablesPtr->lineCounter++;
-        state = getLine(variablesPtr->file, variablesPtr->line);
         strcpy(variablesPtr->line,strip(variablesPtr->line));
         defaultValues(variablesPtr);
 
@@ -16,6 +18,9 @@ void firstPass(variables *variablesPtr) {
 
         if(state == Invalid)
             variablesPtr->status = LineTooLong;
+
+        if(state == Empty || state == Comment)
+            continue;
 
         if(state == Instruction)
             handleInstruction(variablesPtr,&word);
@@ -42,17 +47,17 @@ void handleInstruction(variables *variablesPtr,Word *wordPtr) {
     
     /* find the label */
     strcpy(variablesPtr->symbol,findSymbol(lineCopy));
-    if(!strcmp(variablesPtr->symbol,"")) {
-        checkSyntaxValidLabel(variablesPtr);
+    if(strcmp(variablesPtr->symbol,"")) {
+        checkSyntaxValidLabel(variablesPtr,variablesPtr->symbol,True);
         if(variablesPtr->status != Valid)
             return;
 
-        checkDirectiveLabel(variablesPtr,NoneEntOrExt);
+        checkDirectiveLabel(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
         if(variablesPtr->status != Valid)
             return;
 
         addSymbol(variablesPtr, CodeImage);
-        lineCopy+=strlen(variablesPtr->symbol);
+        lineCopy+=strlen(variablesPtr->symbol)+1;
         strcpy(lineCopy,strip(lineCopy));
     }
 
@@ -121,7 +126,7 @@ void fillTwoOperands(char *str, Word *word, variables *variablesPtr)
 
     word->code.ARE = A;
     word->code.srcAdd = op1;
-    word->code.destReg = op2;
+    word->code.destAdd = op2;
     word->code.srcReg = op1 == 3 ? findReg(arr[IMPORTANT]) : 0;
     word->code.destReg = op2 == 3 ? findReg(arr[REST]) : 0;
     addWordToImage(&variablesPtr->codeHptr,*word,variablesPtr->IC);
@@ -216,11 +221,11 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             return;
         }
         if(hasSymbol) {
-            checkSyntaxValidLabel(variablesPtr);
+            checkSyntaxValidLabel(variablesPtr,variablesPtr->symbol,True);
             if(variablesPtr->status != Valid)
                 return;
             
-            checkDirectiveLabel(variablesPtr,NoneEntOrExt);
+            checkDirectiveLabel(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
             if(variablesPtr->status != Valid)
                 return;
 
@@ -278,19 +283,18 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
         }
     }
     else if(type == Entry) {
-        checkSyntaxValidLabel(variablesPtr);
+        checkSyntaxValidLabel(variablesPtr,arr[REST],False);
         return;
     }
     else {
         symbolTableNode node;
-        checkSyntaxValidLabel(variablesPtr);
+        checkSyntaxValidLabel(variablesPtr,arr[REST],False);
         if(variablesPtr->status != Valid)
             return;
 
-        checkDirectiveLabel(variablesPtr,External);
+        checkDirectiveLabel(variablesPtr,arr[REST],External);
         if(variablesPtr->status != Valid)
             return;
-
         strcpy(node.symbol,arr[REST]);
         node.address = 0;
         node.location = DataImage;
@@ -303,7 +307,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
 /* the the symbol from the variables ptr with the location loc to the list */
 void addSymbol(variables *variablesPtr, Location loc) {
     symbolTableNode newSymbol;
-    newSymbol.symbol = variablesPtr->symbol;
+    strcpy(newSymbol.symbol,variablesPtr->symbol);
     newSymbol.type = NoneEntOrExt;
     if(loc == CodeImage) {
         newSymbol.address = variablesPtr->IC;
@@ -334,7 +338,7 @@ int findAddressMethod(variables *variablesPtr, char *str) {
 
     if(*str == '&')
     {
-        checkSyntaxValidLabel(variablesPtr);
+        checkSyntaxValidLabel(variablesPtr,++str,False);
         if(variablesPtr->status != Valid)
     		return 2;
 
@@ -344,7 +348,7 @@ int findAddressMethod(variables *variablesPtr, char *str) {
     if(findReg(str) != -1)
     	return 3;
 
-    checkSyntaxValidLabel(variablesPtr);
+    checkSyntaxValidLabel(variablesPtr,str,False);
     if(variablesPtr->status == Valid)
     	return 1;
 
@@ -364,12 +368,12 @@ Status checkNum(char *str)
 	return Valid;
 }
 
-void checkSyntaxValidLabel(variables *variablesPtr)
+void checkSyntaxValidLabel(variables *variablesPtr, char *sym, Bool checkSpace)
 {
 	int i;
-    char str[LABEL_LEN];
-    strcpy(str,variablesPtr->symbol);
-	if(strlen(variablesPtr->symbol) > 31)
+    char str[LINE_LEN];
+    strcpy(str,sym);
+	if(strlen(str) > 31)
 		variablesPtr->status = LabelTooLong; /*Too long*/
 	
 	if((*str > 'z' || *str < 'a') && (*str > 'Z' || *str < 'A'))
@@ -378,19 +382,21 @@ void checkSyntaxValidLabel(variables *variablesPtr)
 	if(findOpcode(str) != -1 || findReg(str) != -1 || findEntryOrExternal(str) != NoneEntOrExt)
 		variablesPtr->status = ReservedLabelName; /*Label with the same name of a reserved name*/
 
-    if(!isspace(variablesPtr->line[strlen(str)]))
-        variablesPtr->status = MissingWhitespace;
+	if(checkSpace) {
+        if (!isspace(variablesPtr->line[strlen(str)+1]))
+            variablesPtr->status = MissingWhitespace;
+    }
     
     for(i = 1; i < strlen(str); i++) { /*check that there are only letters and numbers in the label*/
-		if(isalnum(str[i])) /* is alpha numeric */
+		if(!isalnum(str[i])) /* is alpha numeric */
 			variablesPtr->status = LabelInvalidCharacters;
 	}
 }
 
-void checkDirectiveLabel(variables *variablesPtr,Type type) {
-    if(symbolInList(variablesPtr->symbolHptr,variablesPtr->symbol)) {
+void checkDirectiveLabel(variables *variablesPtr,char *symbol,Type type) {
+    if(symbolInList(variablesPtr->symbolHptr,symbol)) {
         Type symbolType;
-        symbolType = getSymbolType(variablesPtr->symbolHptr, variablesPtr->symbol);
+        symbolType = getSymbolType(variablesPtr->symbolHptr, symbol);
         if(symbolType == NoneEntOrExt) {
             if(type != Entry) {
                 variablesPtr->status = InvalidLabel;
@@ -450,7 +456,6 @@ void updateTables(variables *variablesPtr) {
 void defaultValues(variables *variablesPtr) {
     variablesPtr->status = Valid;
     strcpy(variablesPtr->symbol,"");
-    strcpy(variablesPtr->line,"");
 }
 
 void addEmptyWord(variables *variablesPtr) {

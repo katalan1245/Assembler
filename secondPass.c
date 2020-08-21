@@ -9,10 +9,19 @@ void secondPass(variables *variablesPtr) {
     variablesPtr->lineCounter = 0;
 
     while(!feof(variablesPtr->file)) {
+        state = getLine(variablesPtr);
+        if(feof(variablesPtr->file))
+            break;
         variablesPtr->lineCounter++;
-        state = getLine(variablesPtr->file,variablesPtr->line);
+
+        strcpy(variablesPtr->line,strip(variablesPtr->line));
+        if(state == Invalid)
+            variablesPtr->status = LineTooLong;
+
+        if(state == Comment || state == Empty)
+            continue;
         symbol = findSymbol(variablesPtr->line);
-        if(symbol) {
+        if(strcmp(symbol,"")) {
             split(variablesPtr->line," \t",arr);
             strcpy(variablesPtr->line, strip(arr[REST]));
         }
@@ -22,7 +31,8 @@ void secondPass(variables *variablesPtr) {
             t = findEntryOrExternal(variablesPtr->line);
             if(t == Entry) {
                 split(variablesPtr->line," \t",arr);
-                variablesPtr->status = addEntryProperty(variablesPtr->symbolHptr,strip(arr[REST]));
+                strcpy(arr[REST],strip(arr[REST]));
+                variablesPtr->status = addEntryProperty(variablesPtr->symbolHptr,arr[REST]);
             }
         }
         else if(state == Instruction) {
@@ -34,6 +44,7 @@ void secondPass(variables *variablesPtr) {
     }
 }
 
+/* NEED TO TAKE CARE ABOUT ALL THE OPERATIONS(STOP) BEFORE THE SPLIT! */
 void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
     static int tempIC = 100;
     int opcode = getOpcode(*wordHptr,tempIC);
