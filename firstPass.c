@@ -1,4 +1,5 @@
 #include "firstPass.h"
+#include "defaults.h"
 
 /* Handle the first pass of the assembler */
 void firstPass(variables *variablesPtr) {
@@ -35,6 +36,7 @@ void firstPass(variables *variablesPtr) {
     }
 
     updateTables(variablesPtr);
+    printListProp(variablesPtr);
 }
 
 /* Handle the instruction statement, return the status of the statement
@@ -78,6 +80,11 @@ void handleInstruction(variables *variablesPtr,Word *wordPtr) {
         if(strcmp(lineCopy,"")) /* if there is text left raise error */
             variablesPtr->status = TextAfterCommand;
         else {
+            wordPtr->code.destReg = 0;
+            wordPtr->code.destAdd = 0;
+            wordPtr->code.srcReg = 0;
+            wordPtr->code.srcAdd = 0;
+            addWordToImage(&variablesPtr->codeHptr,*wordPtr,variablesPtr->IC);
             variablesPtr->IC++;
             variablesPtr->status = Valid;
         }
@@ -246,11 +253,12 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             if(variablesPtr->status != Valid)
                 return;
 
-            for(i=1;i<strlen(arr[REST])-2;i++) {
+            for(i=1;i<strlen(arr[REST])-1;i++) {
                 addStringWord(variablesPtr,arr[REST][i]);
                 variablesPtr->DC++;
             }
             addStringWord(variablesPtr,'\0');
+            variablesPtr->DC++;
             variablesPtr->status = Valid;
         }
 
@@ -258,7 +266,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             char strCopy[LINE_LEN];
             long num;
             strcpy(strCopy,arr[REST]);
-            while(!strcmp(strCopy,""))
+            while(strcmp(strCopy,""))
             {
                 Word w;
                 split(strCopy,",",arr);
@@ -339,7 +347,7 @@ int findAddressMethod(variables *variablesPtr, char *str) {
     if(*str == '&')
     {
         checkSyntaxValidLabel(variablesPtr,++str,False);
-        if(variablesPtr->status != Valid)
+        if(variablesPtr->status == Valid)
     		return 2;
 
     	return -1; /* invalid label */
@@ -421,6 +429,7 @@ void checkDirectiveLabel(variables *variablesPtr,char *symbol,Type type) {
 void addNumberWord(variables *variablesPtr, char *str) {
     Word w;
     long num;
+    str += *str == '#' ? 1 : 0;
     num = strtol(str,NULL,10);
     if(num < 0)
         w.index = ((long)pow(2,21) + num);
@@ -441,7 +450,7 @@ void updateTables(variables *variablesPtr) {
     symbolTableNodePtr symbolHptr = variablesPtr->symbolHptr;
     wordNodePtr wordHptr = variablesPtr->dataHptr;
     while(symbolHptr) {
-        if(symbolHptr->location == DataImage) {
+        if(symbolHptr->location == DataImage && symbolHptr->type != External) {
             symbolHptr->address += variablesPtr->IC;
         }
         symbolHptr = symbolHptr->next;
@@ -462,4 +471,16 @@ void addEmptyWord(variables *variablesPtr) {
     Word w;
     w.index = 0;
     addWordToImage(&variablesPtr->codeHptr,w,variablesPtr->IC);
+}
+
+void printListProp(variables *variablesPtr) {
+    wordNodePtr data = variablesPtr->dataHptr;
+    wordNodePtr code = variablesPtr->codeHptr;
+    while(code) {
+        code = code->next;
+    }
+    while(data) {
+        data = data->next;
+    }
+
 }

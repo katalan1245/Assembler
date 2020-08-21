@@ -73,7 +73,7 @@ void printError(variables *variablesPtr) {
     }
 }
 
-void printWord(FILE *f,wordNodePtr wordPtr) {
+void    printWord(FILE *f,wordNodePtr wordPtr) {
     unsigned long num = MAX_24_UNSIGNED;
     num &= wordPtr->word.index;
     fprintf(f,"%06lu ",wordPtr->address);
@@ -99,7 +99,7 @@ void createOutput(variables *variablesPtr) {
 
     sprintf(str,"%s.ob",variablesPtr->filename);
     file = fopen(str,"w");
-    fprintf(file,"%6d %d",variablesPtr->IC - STARTING_IC,variablesPtr->DC);
+    fprintf(file,"%6d %d\n",variablesPtr->IC - STARTING_IC,variablesPtr->DC);
     while(codeHptr) {
         if(strcmp(codeHptr->externSymbol,""))
             hasExternal = True;
@@ -130,8 +130,10 @@ void createOutput(variables *variablesPtr) {
     while(symbolPtr) {
         if(symbolPtr->type == Entry)
             hasEntry = True;
+        symbolPtr = symbolPtr->next;
     }
 
+    symbolPtr = variablesPtr->symbolHptr;
     if(hasEntry) {
         sprintf(str,"%s.ent",variablesPtr->filename);
         file = fopen(str,"w");

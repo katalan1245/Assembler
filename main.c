@@ -7,10 +7,10 @@ int main(int argc, char *argv[]) {
     variables *variablesPtr;
     variablesPtr = (variables*) malloc(sizeof(variables));
     for(i=1;i<argc;i++) {
-        /*char filename[FILE_NAME_LEN+AS_OB_EXTENSION_LEN]; */
-        char filename[1000];
-        /* sprintf(filename,"%s.as",argv[i]); */
-        sprintf(filename,"/home/raz/Desktop/Maman14/example.as");
+        char filename[FILE_NAME_LEN+AS_OB_EXTENSION_LEN];
+        /*char filename[1000]; */
+        sprintf(filename,"%s.as",argv[i]); 
+        /*sprintf(filename,"/home/raz/Desktop/Maman14/example.as"); */
         strcpy(variablesPtr->filename,argv[i]);
 
         variablesPtr->file = fopen(filename,"r");
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
         fclose(variablesPtr->file);
         createOutput(variablesPtr);
-        printf("Output created!");
+        printf("Output created!\n");
     }
 
     return 0;

@@ -21,4 +21,5 @@ void addStringWord(variables*,char);
 void updateTables(variables*);
 void defaultValues(variables*);
 void addEmptyWord(variables*);
+void printListProp(variables*);
 #endif

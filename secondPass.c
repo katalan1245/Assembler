@@ -1,11 +1,12 @@
 #include "secondPass.h"
 
+/* NEED TO TAKE CARE ABOUT IC AND DC ALL FUNCTIONS! ******************/
 void secondPass(variables *variablesPtr) {
     Statement state;
-    wordNodePtr wordPtr;
+    wordNodePtr wordPtr = variablesPtr->codeHptr;
     char *symbol;
     char arr[STRING_PARTS][LINE_LEN];
-    wordPtr = variablesPtr->codeHptr;
+    /*wordPtr = variablesPtr->codeHptr;*/
     variablesPtr->lineCounter = 0;
 
     while(!feof(variablesPtr->file)) {
@@ -36,18 +37,18 @@ void secondPass(variables *variablesPtr) {
             }
         }
         else if(state == Instruction) {
-            secondInstruction(variablesPtr,&wordPtr);
+            secondInstruction(variablesPtr,&variablesPtr->codeHptr);
         }
 
         printError(variablesPtr);
         
     }
+    variablesPtr->codeHptr = wordPtr;
 }
 
-/* NEED TO TAKE CARE ABOUT ALL THE OPERATIONS(STOP) BEFORE THE SPLIT! */
 void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
     static int tempIC = 100;
-    int opcode = getOpcode(*wordHptr,tempIC);
+    int opcode = getOpcode(variablesPtr->codeHptr,tempIC); /* *wordHptr */
     int srcAdd = getSrcAdd(*wordHptr,tempIC);
     int destAdd = getDestAdd(*wordHptr,tempIC);
     char arr[STRING_PARTS][LINE_LEN];
@@ -91,9 +92,9 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
                         (*wordHptr)->word.index = E;
                         strcpy((*wordHptr)->externSymbol,arr[REST]);
                     }
-                    else
-                        (*wordHptr)->word.index = (addr<<3) + R;
-                    
+                    else {
+                        (*wordHptr)->word.index = (addr << 3) + R;
+                    }
                 }
             }
         }
