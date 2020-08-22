@@ -1,7 +1,7 @@
 #include "dataImage.h"
 
-void addWordToImage(wordNodePtr *hptr, Word word, unsigned long adderss) {
-    wordNodePtr p1,p2;
+void addWordToImage(wordNodePtr *hptr, Word word, unsigned long address) {
+    wordNodePtr p1 = NULL,p2 = NULL;
     wordNodePtr t;
     
     t = (wordNodePtr) malloc(sizeof(wordNode));
@@ -11,12 +11,11 @@ void addWordToImage(wordNodePtr *hptr, Word word, unsigned long adderss) {
     }
 
     /* copy fields from node to t */
-    t->address = adderss;
+    t->address = address;
     t->word = word;
     strcpy(t->externSymbol,"");
 
     p1 = *hptr;
-    p2 = NULL;
     /* get to the last node */
     while(p1) {
         p2 = p1;

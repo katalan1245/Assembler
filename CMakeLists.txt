@@ -1,6 +1,22 @@
-cmake_minimum_required(VERSION 3.15)
-project(Maman14 C)
+cmake_minimum_required(VERSION 3.10.2)
+project(Assembler C)
 
-set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD 11)
 
-add_executable(Maman14 main.c inputAnalyze.c inputAnalyze.h symbolTableLinkedList.c symbolTableLinkedList.h defaults.h printFunctions.c printFunctions.h firstPass.c firstPass.h dataImage.c dataImage.h secondPass.c secondPass.h)
+include_directories(.)
+
+add_executable(Assembler
+        main.c
+        dataImage.c
+        dataImage.h
+        defaults.h
+        firstPass.c
+        firstPass.h
+        inputAnalyze.c
+        inputAnalyze.h
+        printFunctions.c
+        printFunctions.h
+        secondPass.c
+        secondPass.h
+        symbolTableLinkedList.c
+        symbolTableLinkedList.h)

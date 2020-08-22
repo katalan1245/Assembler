@@ -9,7 +9,7 @@ int main(int argc, char *argv[]) {
     for(i=1;i<argc;i++) {
         char filename[FILE_NAME_LEN+AS_OB_EXTENSION_LEN];
         sprintf(filename,"%s.as",argv[i]);
-        /*sprintf(filename,"/home/raz/Desktop/Maman14/valid.as");*/
+        /*sprintf(filename,"/home/user/Desktop/Assembler/Assembler/fpass_errors.as");*/
         strcpy(variablesPtr->filename,argv[i]);
 
         variablesPtr->file = fopen(filename,"r");

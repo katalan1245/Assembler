@@ -99,7 +99,7 @@ void createOutput(variables *variablesPtr) {
 
     sprintf(str,"%s.ob",variablesPtr->filename);
     file = fopen(str,"w");
-    fprintf(file,"%6d %d\n",variablesPtr->IC - STARTING_IC,variablesPtr->DC);
+    fprintf(file,"%7d %d\n",variablesPtr->IC - STARTING_IC,variablesPtr->DC);
     while(codeHptr) {
         if(strcmp(codeHptr->externSymbol,""))
             hasExternal = True;

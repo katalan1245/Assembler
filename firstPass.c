@@ -213,10 +213,11 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
     DataOrString varType;
     Bool hasSymbol;
 	char arr[STRING_PARTS][LINE_LEN];
+	char symbolTemp[LINE_LEN];
     strcpy(lineCopy,variablesPtr->line);
     
-    strcpy(variablesPtr->symbol,findSymbol(lineCopy));
-    hasSymbol = !strcmp(variablesPtr->symbol,"") ? False : True;
+    strcpy(symbolTemp,findSymbol(lineCopy));
+    hasSymbol = !strcmp(symbolTemp,"") ? False : True;
     if(hasSymbol) {
         split(lineCopy," \t",arr);
         strcpy(lineCopy,strip(arr[REST]));
@@ -233,10 +234,10 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             return;
         }
         if(hasSymbol) {
-            checkSyntaxValidLabel(variablesPtr,variablesPtr->symbol,True);
+            checkSyntaxValidLabel(variablesPtr,symbolTemp,True);
             if(variablesPtr->status != Valid)
                 return;
-            
+            strcpy(variablesPtr->symbol,symbolTemp);
             checkDirectiveLabel(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
             if(variablesPtr->status != Valid)
                 return;
@@ -251,9 +252,9 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             
             if(arr[REST][0] != '\"')
                 variablesPtr->status = InvalidOperand;
-            if(ind == strlen(arr[REST]))
+            else if(ind == strlen(arr[REST]))
                 variablesPtr->status = NoClosingQuotes;
-            if(ind != 1)
+            else if(ind != 1)
                 variablesPtr->status = ExtraneousText;
             if(variablesPtr->status != Valid)
                 return;
@@ -274,20 +275,34 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             while(strcmp(strCopy,""))
             {
                 Word w;
-                split(strCopy,",",arr);
+                int tokExist;
+                tokExist = split(strCopy,",",arr);
                 strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
-                if(checkNum(arr[IMPORTANT]) != Valid) {
+                strcpy(arr[REST],strip(arr[REST]));
+
+                if(!strcmp(arr[REST],"") && tokExist == DELIM_EXIST) {
                     variablesPtr->status = InvalidOperand;
                     return;
                 }
+
+                if(!strcmp(arr[IMPORTANT],"")) {
+                	variablesPtr->status = InvalidOperand;
+                    return;
+                }
+                if(checkNum(arr[IMPORTANT]) != Valid) {
+                    variablesPtr->status = InvalidOperand;
+                    return;
+                } 
 
                 num = strtol(arr[IMPORTANT],NULL,10);
                 if(num > 8388607 || num < -8388608) {
                     variablesPtr->status = InvalidOperand;
                     return;
                 }
+                if(num < 0)
+                	num = pow(2,24) + num;
 
-                strcpy(strCopy,strip(arr[REST]));
+                strcpy(strCopy,arr[REST]);
                 w.index = num;
                 addWordToImage(&variablesPtr->dataHptr,w,variablesPtr->DC);
                 variablesPtr->DC++;

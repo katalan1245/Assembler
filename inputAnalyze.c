@@ -1,13 +1,17 @@
 #include "inputAnalyze.h"
 
+void advanceToNextLine(FILE*);
+
 Statement getLine(variables *variablesPtr) {
     Statement state;
     size_t len;
     memset(variablesPtr->line,'\0',LINE_LEN);
     fgets(variablesPtr->line,LINE_LEN,variablesPtr->file);
     len = strlen(variablesPtr->line);
-    if(len == LINE_LEN - 1 && variablesPtr->line[len-1] != '\0' && variablesPtr->line[len-1] != '\n')
+    if(len == LINE_LEN - 1 && variablesPtr->line[len-1] != '\0' && variablesPtr->line[len-1] != '\n') {
+        advanceToNextLine(variablesPtr->file);
         return Invalid;
+    }
     if(feof(variablesPtr->file)) {
         if(variablesPtr->line[80] == '\0') {
             variablesPtr->line[strlen(variablesPtr->line)] = '\n';
@@ -16,6 +20,11 @@ Statement getLine(variables *variablesPtr) {
 
     state = firstCheck(variablesPtr->line);
     return state;
+}
+
+void advanceToNextLine(FILE *f)
+{
+    while(fgetc(f) != '\n');
 }
 
 /* return the statement of the sentence or invalid*/
@@ -215,7 +224,7 @@ DataOrString findDataOrString(char *str) {
 /* find the first occurence of ch in the str and return the len, if not found return -1 */
 int findFromEnd(char *str, char ch) {
     int i;
-    for(i=strlen(str)-1;i>=0;i++) {
+    for(i=strlen(str)-1;i>=0;i--) {
         if(str[i] == ch)
             return strlen(str) - i;
     }
