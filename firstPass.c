@@ -47,10 +47,13 @@ void firstPass(variables *variablesPtr) {
 void handleInstruction(variables *variablesPtr,Word *wordPtr) {
     char *lineCopy = (char*) malloc(LINE_LEN);
     char *temp = lineCopy;
+    char *back;
     strcpy(lineCopy,variablesPtr->line);
     
     /* find the label */
-    strcpy(variablesPtr->symbol,findSymbol(lineCopy));
+    back = findSymbol(lineCopy);
+    strcpy(variablesPtr->symbol,back);
+    free(back);
     if(strcmp(variablesPtr->symbol,"")) {
         checkSyntaxValidLabel(variablesPtr,variablesPtr->symbol,True);
         if(variablesPtr->status != Valid)

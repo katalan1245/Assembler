@@ -76,16 +76,16 @@ void printError(variables *variablesPtr) {
 void    printWord(FILE *f,wordNodePtr wordPtr) {
     unsigned long num = MAX_24_UNSIGNED;
     num &= wordPtr->word.index;
-    fprintf(f,"%06lu ",wordPtr->address);
+    fprintf(f,"%07lu ",wordPtr->address);
     fprintf(f,"%06lx\n",num);
 }
 
 void printExternal(FILE *f, wordNodePtr wordPtr) {
-    fprintf(f,"%s %06lu\n",wordPtr->externSymbol,wordPtr->address);
+    fprintf(f,"%s %07lu\n",wordPtr->externSymbol,wordPtr->address);
 }
 
 void printEntry(FILE *f, symbolTableNodePtr symbolPtr) {
-    fprintf(f,"%s %06lu\n",symbolPtr->symbol,symbolPtr->address);
+    fprintf(f,"%s %07lu\n",symbolPtr->symbol,symbolPtr->address);
 }
 
 void createOutput(variables *variablesPtr) {

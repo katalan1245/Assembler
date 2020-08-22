@@ -4,7 +4,8 @@
 void secondPass(variables *variablesPtr) {
     Statement state;
     wordNodePtr wordPtr = variablesPtr->codeHptr;
-    char *symbol;
+    char symbol[LABEL_LEN];
+    char *back;
     char arr[STRING_PARTS][LINE_LEN];
     /*wordPtr = variablesPtr->codeHptr;*/
     variablesPtr->lineCounter = 0;
@@ -21,7 +22,9 @@ void secondPass(variables *variablesPtr) {
 
         if(state == Comment || state == Empty)
             continue;
-        symbol = findSymbol(variablesPtr->line);
+        back = findSymbol(variablesPtr->line);
+        strcpy(symbol,back);
+        free(back);
         if(strcmp(symbol,"")) {
             split(variablesPtr->line," \t",arr);
             strcpy(variablesPtr->line, strip(arr[REST]));
@@ -55,6 +58,7 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
     int srcAdd = getSrcAdd(*wordHptr,tempIC);
     int destAdd = getDestAdd(*wordHptr,tempIC);
     char arr[STRING_PARTS][LINE_LEN];
+    memset(arr,0, sizeof(arr[0][0])*STRING_PARTS*LINE_LEN);
     split(variablesPtr->line," \t",arr);
     split(arr[REST],",",arr);
     strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));

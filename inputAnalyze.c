@@ -2,8 +2,12 @@
 
 Statement getLine(variables *variablesPtr) {
     Statement state;
+    size_t len;
     memset(variablesPtr->line,'\0',LINE_LEN);
     fgets(variablesPtr->line,LINE_LEN,variablesPtr->file);
+    len = strlen(variablesPtr->line);
+    if(len == LINE_LEN - 1 && variablesPtr->line[len-1] != '\0' && variablesPtr->line[len-1] != '\n')
+        return Invalid;
     if(feof(variablesPtr->file)) {
         if(variablesPtr->line[80] == '\0') {
             variablesPtr->line[strlen(variablesPtr->line)] = '\n';
@@ -35,22 +39,33 @@ Statement firstCheck(char *str) {
 /* strip the string str from whitespaces and return the stripped string */
 char *strip(char *str) {
     size_t size;
+    char *copy = (char*) malloc(LINE_LEN);
+    char *temp;
     char *end;
+    temp = copy;
+    memset(copy,'\0',LINE_LEN);
+    strcpy(copy,str);
     /* if string empty, return it */
-    size = strlen(str);
-    if (!size)
+    size = strlen(copy);
+    if (!size) {
+        strcpy(str,copy);
+        free(copy);
         return str;
+    }
 
     /* remove all whitespaces from the end of the string */
-    end = str + size - 1;
-    while(end >= str && isspace(*end))
+    end = copy + size - 1;
+    while(end >= copy && isspace(*end))
         --end;
     *(end + 1) = '\0';
 
     /* remove all whitespaces from the start of the string */
-    while(str && isspace(*str))
-        str++;
+    while(copy && isspace(*copy))
+        copy++;
 
+    strcpy(str,copy);
+    copy = temp;
+    free(copy);
     return str;
 }
 
@@ -59,7 +74,8 @@ char *strip(char *str) {
  * return if the delimeters exists, same as arr[1] = "" */
 int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
     char *tok;
-    char strCopy[1000];
+    char strCopy[LINE_LEN];
+    char temp[LINE_LEN];
     int i;
 
     strcpy(strCopy, str);
@@ -80,7 +96,8 @@ int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
     }
     tok = strtok(NULL, delim); /* look for the next token */
     strcpy(arr[IMPORTANT], strCopy);
-    strcpy(arr[REST], (str + strlen(strCopy) + 1)); /* we want the rest of the string, and not until the next token */
+    strcpy(temp, (str + strlen(strCopy) + 1)); /* we want the rest of the string, and not until the next token */
+    strcpy(arr[REST],temp);
     return DELIM_EXIST;
 }
 

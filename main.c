@@ -8,15 +8,14 @@ int main(int argc, char *argv[]) {
     variablesPtr = (variables*) malloc(sizeof(variables));
     for(i=1;i<argc;i++) {
         char filename[FILE_NAME_LEN+AS_OB_EXTENSION_LEN];
-        /*char filename[1000]; */
-        /*sprintf(filename,"%s.as",argv[i]); */
-        sprintf(filename,"/home/raz/Desktop/Maman14/valid.as");
+        sprintf(filename,"%s.as",argv[i]);
+        /*sprintf(filename,"/home/raz/Desktop/Maman14/valid.as");*/
         strcpy(variablesPtr->filename,argv[i]);
 
         variablesPtr->file = fopen(filename,"r");
 
         if(!variablesPtr->file) {
-            printf("%s: Cannot open file!",filename);
+            printf("%s: Cannot open file!\n",filename);
             continue;
         }
 
