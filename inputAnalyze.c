@@ -2,9 +2,14 @@
 
 Statement getLine(variables *variablesPtr) {
     Statement state;
-    
+    memset(variablesPtr->line,'\0',LINE_LEN);
     fgets(variablesPtr->line,LINE_LEN,variablesPtr->file);
-    
+    if(feof(variablesPtr->file)) {
+        if(variablesPtr->line[80] == '\0') {
+            variablesPtr->line[strlen(variablesPtr->line)] = '\n';
+        }
+    }
+
     state = firstCheck(variablesPtr->line);
     return state;
 }
@@ -15,6 +20,7 @@ Statement firstCheck(char *str) {
     memset(arr,0,sizeof(arr[0][0])*STRING_PARTS*LINE_LEN);
     if(str[strlen(str)-1] != '\n') /* line too long */ 
         return Invalid;
+    strcpy(str,strip(str));
     if(str[0] == '\n' || str[0] == '\0') /* first char is \0 */
         return Empty;
     if(str[0] == ';') /* first char is ; */
@@ -94,7 +100,7 @@ int findOpcode(char *str) {
         return 4;
     if(!strcmp(oper,"clr") || !strcmp(oper,"not") || !strcmp(oper,"inc") || !strcmp(oper,"dec"))
         return 5;
-    if(!strcmp(oper,"jmp") || !strcmp(oper,"bne") || !strcmp(oper,"jne"))
+    if(!strcmp(oper,"jmp") || !strcmp(oper,"bne") || !strcmp(oper,"jsr"))
         return 9;
     if(!strcmp(oper,"red"))
         return 12;

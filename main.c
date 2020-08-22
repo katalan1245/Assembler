@@ -9,8 +9,8 @@ int main(int argc, char *argv[]) {
     for(i=1;i<argc;i++) {
         char filename[FILE_NAME_LEN+AS_OB_EXTENSION_LEN];
         /*char filename[1000]; */
-        sprintf(filename,"%s.as",argv[i]); 
-        /*sprintf(filename,"/home/raz/Desktop/Maman14/example.as"); */
+        /*sprintf(filename,"%s.as",argv[i]); */
+        sprintf(filename,"/home/raz/Desktop/Maman14/valid.as");
         strcpy(variablesPtr->filename,argv[i]);
 
         variablesPtr->file = fopen(filename,"r");
@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
             fclose(variablesPtr->file);
             continue;
         }
+        printf("second pass:\n");
         rewind(variablesPtr->file);
         secondPass(variablesPtr);
         if(variablesPtr->foundError) {

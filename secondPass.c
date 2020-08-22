@@ -40,6 +40,9 @@ void secondPass(variables *variablesPtr) {
             secondInstruction(variablesPtr,&variablesPtr->codeHptr);
         }
 
+        if(variablesPtr->status != Valid)
+            variablesPtr->foundError = True;
+
         printError(variablesPtr);
         
     }
@@ -53,7 +56,9 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
     int destAdd = getDestAdd(*wordHptr,tempIC);
     char arr[STRING_PARTS][LINE_LEN];
     split(variablesPtr->line," \t",arr);
-    split(strip(arr[REST]),",",arr);
+    split(arr[REST],",",arr);
+    strcpy(arr[IMPORTANT],strip(arr[IMPORTANT]));
+    strcpy(arr[REST],strip(arr[REST]));
     variablesPtr->status = Valid;
 
     if(opcode <= 4) {

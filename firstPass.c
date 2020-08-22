@@ -7,10 +7,9 @@ void firstPass(variables *variablesPtr) {
     Word word;
     variablesPtr->lineCounter=0;
 
+    /* NEED TO WORK ON EOF/ \N WHILE READING A FILE, LAST LINE TOO LONG */
     while(!feof(variablesPtr->file)) {
         state = getLine(variablesPtr);
-        if(feof(variablesPtr->file))
-            break;
         variablesPtr->lineCounter++;
         strcpy(variablesPtr->line,strip(variablesPtr->line));
         defaultValues(variablesPtr);
@@ -33,6 +32,9 @@ void firstPass(variables *variablesPtr) {
             variablesPtr->foundError = True;
 
         printError(variablesPtr);
+
+        if(feof(variablesPtr->file))
+            break;
     }
 
     updateTables(variablesPtr);
