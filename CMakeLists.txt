@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 
 include_directories(.)
 
-add_executable(Assembler
+add_executable(Maman14
         main.c
         dataImage.c
         dataImage.h
