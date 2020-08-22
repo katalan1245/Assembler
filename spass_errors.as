@@ -29,15 +29,15 @@ inc Y
 dec MathFacts0
 
 .entry SOMEUNKNOWNLABEL
-.entry 0DataIsNice
+.entry D0ataIsNice
 .entry DataIsNice0
-.entry 0
-.entry 0MyOtherOtherString
+.entry d0
+.entry My0OtherOtherString
 .entry MyOtherOtherString
 .entry NULL
 .entry DataIsNice
 
 ; Assembler will ignore
-IgnoreMe:
+;IgnoreMe:
 
 jmp &IgnoreMe
