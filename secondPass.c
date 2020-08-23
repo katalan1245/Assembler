@@ -1,5 +1,6 @@
 #include "secondPass.h"
 
+static int tempIC = 100;
 /* NEED TO TAKE CARE ABOUT IC AND DC ALL FUNCTIONS! ******************/
 void secondPass(variables *variablesPtr) {
     Statement state;
@@ -49,11 +50,11 @@ void secondPass(variables *variablesPtr) {
         printError(variablesPtr);
         
     }
+    tempIC = 100;
     variablesPtr->codeHptr = wordPtr;
 }
 
 void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
-    static int tempIC = 100;
     int opcode = getOpcode(variablesPtr->codeHptr,tempIC); /* *wordHptr */
     int srcAdd = getSrcAdd(*wordHptr,tempIC);
     int destAdd = getDestAdd(*wordHptr,tempIC);

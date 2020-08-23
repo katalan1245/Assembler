@@ -73,7 +73,7 @@ void printError(variables *variablesPtr) {
     }
 }
 
-void    printWord(FILE *f,wordNodePtr wordPtr) {
+void printWord(FILE *f,wordNodePtr wordPtr) {
     unsigned long num = MAX_24_UNSIGNED;
     num &= wordPtr->word.index;
     fprintf(f,"%07lu ",wordPtr->address);
