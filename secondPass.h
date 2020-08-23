@@ -8,6 +8,4 @@
 #include "dataImage.h"
 
 void secondPass(variables*);
-void secondInstruction(variables*,wordNodePtr*);
-Status addEntryProperty(labelTableNodePtr,char*);
 #endif

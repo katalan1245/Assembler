@@ -1,18 +1,22 @@
 #include "inputAnalyze.h"
 
 void advanceToNextLine(FILE*);
+Statement firstCheck(char*);
 
+/* get the line and return the statement of the line */
 Statement getLine(variables *variablesPtr) {
     Statement state;
     size_t len;
     memset(variablesPtr->line,'\0',LINE_LEN);
     fgets(variablesPtr->line,LINE_LEN,variablesPtr->file);
     len = strlen(variablesPtr->line);
-    if(len == LINE_LEN - 1 && variablesPtr->line[len-1] != '\0' && variablesPtr->line[len-1] != '\n') {
+    
+    /* check if the length of the line length is valid (80 chars exclude \n\0), if invalid go to the next line */
+    if(len == LINE_LEN - 1 && variablesPtr->line[len-1] != '\0' && variablesPtr->line[len-1] != '\n') { 
         advanceToNextLine(variablesPtr->file);
         return Invalid;
     }
-    if(feof(variablesPtr->file)) {
+    if(feof(variablesPtr->file)) { /* make sure if we have eof and the length is valid, to place \n at the end of the line */
         if(variablesPtr->line[80] == '\0') {
             variablesPtr->line[strlen(variablesPtr->line)] = '\n';
         }
@@ -22,6 +26,7 @@ Statement getLine(variables *variablesPtr) {
     return state;
 }
 
+/* get to the next line of the file */
 void advanceToNextLine(FILE *f)
 {
     while(fgetc(f) != '\n');
@@ -38,10 +43,14 @@ Statement firstCheck(char *str) {
         return Empty;
     if(str[0] == ';') /* first char is ; */
         return Comment;
-    if(split(str,".",arr) == DELIM_EXIST)
-        return Directive;
-    /*if(strcmp(validToken(".",str),""))
-        return Directive;*/
+    if(split(str,".",arr) == DELIM_EXIST) {
+        /* check if .  is the first char, or this it comes after whitespace or : (after label and not inside string or a number) */
+        if(!strcmp(arr[IMPORTANT],""))
+            return Directive;
+        if(isspace(arr[IMPORTANT][strlen(arr[IMPORTANT])-1]) || arr[IMPORTANT][strlen(arr[IMPORTANT]-1)] == ':')
+            return Directive;
+        /*return Directive;*/
+    }
     return Instruction;
 }
 
@@ -88,6 +97,13 @@ int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
     int i;
 
     strcpy(strCopy, str);
+
+    if(!strcmp(strCopy,"")) { /* if the string is empty */
+        strcpy(arr[IMPORTANT],"");
+        strcpy(arr[REST],"");
+        return DELIM_NOT_EXIST;
+    }
+
     /* check if the delimeter on the first char */
     for(i=0;i<strlen(delim);i++) {
         if(str[0] == delim[i]) {
@@ -98,11 +114,12 @@ int split(char *str, char *delim, char arr[STRING_PARTS][LINE_LEN]) {
     }
 
     tok = strtok(strCopy, delim); /* look for the first token */
-    if (tok != NULL &&strlen(tok) == strlen(str)) {
+    if (tok != NULL && strlen(tok) == strlen(str)) { /* if there is no delim */
         strcpy(arr[IMPORTANT], str);
         strcpy(arr[REST], "");
         return DELIM_NOT_EXIST;
     }
+
     tok = strtok(NULL, delim); /* look for the next token */
     strcpy(arr[IMPORTANT], strCopy);
     strcpy(temp, (str + strlen(strCopy) + 1)); /* we want the rest of the string, and not until the next token */
@@ -141,26 +158,21 @@ int findOpcode(char *str) {
 
 /* return the register number of str, -1 if not a register */
 int findReg(char *str) {
-    char arr[STRING_PARTS][LINE_LEN];
-    char oper[LINE_LEN];
-    split(str," \t",arr);
-    strcpy(oper,strip(arr[IMPORTANT]));
-
-    if(!strcmp(oper,"r0"))
+    if(!strcmp(str,"r0"))
         return 0;
-    if(!strcmp(oper,"r1"))
+    if(!strcmp(str,"r1"))
         return 1;
-    if(!strcmp(oper,"r2"))
+    if(!strcmp(str,"r2"))
         return 2;
-    if(!strcmp(oper,"r3"))
+    if(!strcmp(str,"r3"))
         return 3;
-    if(!strcmp(oper,"r4"))
+    if(!strcmp(str,"r4"))
         return 4;
-    if(!strcmp(oper,"r5"))
+    if(!strcmp(str,"r5"))
         return 5;
-    if(!strcmp(oper,"r6"))
+    if(!strcmp(str,"r6"))
         return 6;
-    if(!strcmp(oper,"r7"))
+    if(!strcmp(str,"r7"))
         return 7;
     return -1;
 }
@@ -182,41 +194,22 @@ int findFunct(char *str) {
     return 0;
 }
 
-/* return empty string if the token is not valid, or the string if this is a real token */
-char *validToken(char *tok, char *str) { /*
-    char arr[STRING_PARTS][LINE_LEN];
-    char *tempStr = (char*) malloc(LINE_LEN);
-    int del;
-    size_t len1,len2;
-
-    del = split(str,tok,arr);
-    if(del == DELIM_NOT_EXIST)
-        return "";
-    len1 = strlen(arr[IMPORTANT]);
-    strcpy(tempStr,arr[IMPORTANT]);
-    split(str,"\"",arr);
-    len2 = strlen(arr[IMPORTANT]);
-    if(len1 > len2)
-        return "";
-    return tempStr; */
-    return "";
-}
-
-/* return the type of the line */
+/* return if the str is .entry, .extern or neither */
 Type findEntryOrExternal(char *str) {
     Type flag = NoneEntOrExt;
-    if(!strncmp(str,".extern ", 8) || !strncmp(str,".extern\t", 8))
+    if(!strcmp(str,".extern"))
         flag = External;
-    else if(!strncmp(str,".entry ", 7) || !strncmp(str,".entry\t", 7))
+    else if(!strcmp(str,".entry"))
         flag = Entry;
     return flag;
 }
 
+/* return if the str is .data, .string or neither */
 DataOrString findDataOrString(char *str) {
     DataOrString flag = NoneDataOrStr;
-    if(!strncmp(str,".data ",6) || !strncmp(str,".data\t",6))
+    if(!strcmp(str,".data"))
         flag = DataVar;
-    else if(!strncmp(str,".string ",8) || !strncmp(str,".string\t",8))
+    else if(!strcmp(str,".string"))
         flag = StringVar;
     return flag;
 }
@@ -231,15 +224,97 @@ int findFromEnd(char *str, char ch) {
     return -1;
 }
 
-/* return the label, "" if there is no label */
+/* takes a line, return the label, "" if there is no label */
 char *findLabel(char *str) {
     char *strCopy = (char*)  malloc(LINE_LEN);
     char arr[STRING_PARTS][LINE_LEN];
     strcpy(strCopy,str);
-    if(split(strCopy,":",arr) == DELIM_EXIST)
-        strcpy(strCopy,arr[IMPORTANT]);
+    if(split(strCopy,":",arr) == DELIM_EXIST) { /* if there is ':' at the line */
+        char checkForValid[STRING_PARTS][LINE_LEN];
+        split(strCopy,"\"",checkForValid);
+        if(strlen(checkForValid[IMPORTANT]) > strlen(arr[IMPORTANT])) /* check if the ':' inside a quotes */
+            strcpy(strCopy,arr[IMPORTANT]);
+        else
+            strcpy(strCopy,"");
+    }
     else
         strcpy(strCopy,"");
     return strCopy;
-    /*return validToken(":",str);*/
+}
+
+/* takes an operand, and return the addressing method, -1 if invalid */
+int findAddressMethod(variables *variablesPtr, char *str) {
+    if(*str == '#')
+    {
+    	if(checkNum(++str) == Valid)
+    	{
+            long num = strtol(str,NULL,10);
+            if(num > MAX_21_SIGNED || num < MIN_21_SIGNED) { /* num too big or too small */
+    			variablesPtr->status = NumOutOfMemory;
+                return -1; /* invalid number */
+            }
+            return 0;
+    	}
+    	return -1; /* invalid number */
+    }
+
+    if(*str == '&')
+    {
+        checkSyntaxValidLabel(variablesPtr,++str,False);
+        if(variablesPtr->status == Valid)
+    		return 2;
+
+    	return -1; /* invalid label */
+    }
+
+    if(findReg(str) != -1)
+    	return 3;
+
+    checkSyntaxValidLabel(variablesPtr,str,False);
+    if(variablesPtr->status == Valid)
+    	return 1;
+
+    return -1;
+}
+
+
+/* takes a string and check if it is a valid integer */
+Status checkNum(char *str)
+{
+	int i = 0;
+	if(*str != '+' && *str != '-' && !isdigit(*str))
+        return InvalidNumber;
+	i++;
+
+	for(; i < strlen(str); i++)
+		if(!isdigit(str[i]))
+			return InvalidNumber;
+	return Valid;
+}
+
+
+/* takes a label and check the syntax of the label, if invalid puts the status in variablesPtr->status*/
+void checkSyntaxValidLabel(variables *variablesPtr, char *sym, Bool checkSpace)
+{
+	int i;
+    char str[LINE_LEN];
+    strcpy(str,sym);
+	if(strlen(str) > 31)
+		variablesPtr->status = LabelTooLong; /*Too long*/
+	
+	if((*str > 'z' || *str < 'a') && (*str > 'Z' || *str < 'A'))
+		variablesPtr->status = LabelInvalidStart; /*Doesn't start with a letter*/
+
+	if(findOpcode(str) != -1 || findReg(str) != -1 || findEntryOrExternal(str) != NoneEntOrExt)
+		variablesPtr->status = ReservedLabelName; /*Label with the same name of a reserved name*/
+
+	if(checkSpace) {
+        if (!isspace(variablesPtr->line[strlen(str)+1])) /* check if there is a whitespace after ':' */
+            variablesPtr->status = MissingWhitespace;
+    }
+    
+    for(i = 1; i < strlen(str); i++) { /*check that there are only letters and numbers in the label*/
+		if(!isalnum(str[i])) /* is alpha numeric */
+			variablesPtr->status = LabelInvalidCharacters;
+	}
 }

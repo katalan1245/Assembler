@@ -1,5 +1,5 @@
-assebmly: dataImage.o  firstPass.o inputAnalyze.o main.o printFunctions.o secondPass.o labelTableLinkedList.o
-	gcc -g dataImage.o firstPass.o inputAnalyze.o main.o printFunctions.o secondPass.o labelTableLinkedList.o -o assebmly -lm
+Assembler: dataImage.o  firstPass.o inputAnalyze.o assembler.o printFunctions.o secondPass.o labelTableLinkedList.o
+	gcc -g dataImage.o firstPass.o inputAnalyze.o assembler.o printFunctions.o secondPass.o labelTableLinkedList.o -o Assembler -lm
 
 dataImage.o: dataImage.c dataImage.h defaults.h
 	gcc -c dataImage.c -Wall -pedantic -ansi -o dataImage.o
@@ -10,8 +10,8 @@ firstPass.o: firstPass.c firstPass.h defaults.h inputAnalyze.h labelTableLinkedL
 inputAnalyze.o: inputAnalyze.c inputAnalyze.h defaults.h
 	gcc -c inputAnalyze.c -Wall -pedantic -ansi -o inputAnalyze.o
 
-main.o: main.c labelTableLinkedList.h firstPass.h secondPass.h
-	gcc -c main.c -Wall -pedantic -ansi -o main.o
+assembler.o: assembler.c labelTableLinkedList.h firstPass.h secondPass.h
+	gcc -c assembler.c -Wall -pedantic -ansi -o assembler.o
 
 printFunctions.o: printFunctions.c printFunctions.h defaults.h labelTableLinkedList.h dataImage.h
 	gcc -c printFunctions.c -Wall -pedantic -ansi -o printFunctions.o

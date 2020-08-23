@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 11)
 include_directories(.)
 
 add_executable(Maman14
-        main.c
+        assembler.c
         dataImage.c
         dataImage.h
         defaults.h
@@ -18,5 +18,5 @@ add_executable(Maman14
         printFunctions.h
         secondPass.c
         secondPass.h
-        symbolTableLinkedList.c
-        symbolTableLinkedList.h)
+        labelTableLinkedList.c
+        labelTableLinkedList.h)

@@ -10,18 +10,17 @@
 #define DELIM_NOT_EXIST 1
 
 Statement getLine(variables*);
-Statement firstCheck(char*);
 char *strip(char*);
 int split(char*,char*,char[STRING_PARTS][LINE_LEN]);
-
+int findAddressMethod(variables*,char*);
+Status checkNum(char*);
+void checkSyntaxValidLabel(variables*,char*,Bool);
 int findOpcode(char*);
 int findReg(char*);
 int findFunct(char*);
-char *validToken(char*, char*);
 Type findEntryOrExternal(char*);
 DataOrString findDataOrString(char*);
 int findFromEnd(char*,char);
 char *findLabel(char*);
-int strInArray(char*,char[STRING_PARTS][LINE_LEN]);
 
 #endif

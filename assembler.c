@@ -2,6 +2,10 @@
 #include "firstPass.h"
 #include "secondPass.h"
 
+/* raz katlan and omer haimzon 
+   example is valid
+   first_pass_errors invalid
+   second_pass_errors invalid */
 void freeVars(variables*);
 int main(int argc, char *argv[]) {
     int i;
@@ -11,16 +15,10 @@ int main(int argc, char *argv[]) {
         variablesPtr = (variables*) malloc(sizeof(variables));
         sprintf(filename, "%s.as", argv[i]);
 
-        /*if(i==1)
-            sprintf(filename,"/home/raz/Desktop/Maman14/badpath-datasize.as");
-        if(i==2)
-            sprintf(filename,"/home/raz/Desktop/Maman14/badpath-immedsize.as"); */
-
-
         strcpy(variablesPtr->filename, argv[i]);
-        /*strcpy(variablesPtr->filename,filename);*/
 
         variablesPtr->file = fopen(filename, "r");
+
 
         if (!variablesPtr->file) {
             printf("%s: Cannot open file!\n", filename);
@@ -29,7 +27,7 @@ int main(int argc, char *argv[]) {
 
         /* check if file is empty */
         fseek(variablesPtr->file, 0, SEEK_END);
-        if (ftell(variablesPtr->file) == 0)
+        if(ftell(variablesPtr->file) == 0)
             continue;
         rewind(variablesPtr->file);
 
@@ -37,6 +35,9 @@ int main(int argc, char *argv[]) {
         variablesPtr->DC = 0;
         variablesPtr->foundError = False;
         variablesPtr->lineCounter = 0;
+        variablesPtr->codeHptr = NULL;
+        variablesPtr->dataHptr = NULL;
+        variablesPtr->labelHptr = NULL;
 
         firstPass(variablesPtr);
         if (variablesPtr->foundError) {
@@ -64,9 +65,16 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+/* free the variables */
 void freeVars(variables *variablesPtr) {
     freeLabelList(&variablesPtr->labelHptr);
     freeList(&variablesPtr->codeHptr);
     freeList(&variablesPtr->dataHptr);
     free(variablesPtr);
+}
+
+/* set the default values of variables */
+void defaultValues(variables *variablesPtr) {
+    variablesPtr->status = Valid;
+    strcpy(variablesPtr->label,"");
 }

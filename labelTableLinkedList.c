@@ -65,6 +65,7 @@ Type getLabelType(labelTableNodePtr hptr, char *label) {
     return NoneEntOrExt;
 }
 
+/* get the adderss of the label */
 int getLabelAddress(labelTableNodePtr hptr, char *label) {
     while(hptr) {
         if(!strcmp(label,hptr->label))
@@ -74,6 +75,7 @@ int getLabelAddress(labelTableNodePtr hptr, char *label) {
     return -1;
 }
 
+/* set the type of the label to type t */
 void setType(labelTableNodePtr hptr, char *label, Type t) {
     while(hptr){
         if(!strcmp(label,hptr->label)) {

@@ -19,6 +19,7 @@
 #define MAX_21_SIGNED 1048575
 #define MIN_21_SIGNED -1048576
 #define MAX_21_UNSIGNED 2097151
+#define MINUS1_6_BITS 63
 
 #define OPCODE_LEN 6
 #define SRC_ADD_LEN 2
@@ -38,7 +39,7 @@ typedef enum {A=4,R=2,E=1} ARE;
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
 typedef enum {LineTooLong=0, UnknownOperation=1, LabelAlreadyExist=2,
               TextAfterCommand=3, MissingOperand=4, InvalidOperand=5,
-              InvalidLabel=6, InvalidNumber=7, MultipleDirectives=8,
+              NoOperands=6, InvalidNumber=7, MultipleDirectives=8,
               ReservedLabelName=9, LabelTooLong=10, LabelInvalidStart=11,
               LabelInvalidCharacters=12, MissingWhitespace=13,
               LabelEntryAndExtern=14, LabelDefinedAndExtern=15,
@@ -47,7 +48,7 @@ typedef enum {LineTooLong=0, UnknownOperation=1, LabelAlreadyExist=2,
               NoOpeningQuotes=21, ExtraComma=22, NumOutOfMemory=23,
               Invalid2AdressMethod=24, Invalid0AdressMethod=25,
               InvalidLeaOperands=26, InvalidOperand5_12=27,
-              InvalidOperand9=28, 
+              InvalidOperand9=28, ExtraOperand=29, MissingOperation=30,
               Valid=100} Status;
 
 typedef struct node *labelTableNodePtr;
@@ -95,5 +96,5 @@ typedef struct {
         wordNodePtr codeHptr;
 } variables;
 
-
+void defaultValues(variables*);
 #endif

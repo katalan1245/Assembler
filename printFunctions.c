@@ -20,8 +20,8 @@ void printError(variables *variablesPtr) {
        	case InvalidOperand:
        		fprintf(stdout,"%s.as:%d: Invalid operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
-       	case InvalidLabel:
-       		fprintf(stdout,"%s.as:%d: Invalid Label.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       	case NoOperands:
+       		fprintf(stdout,"%s.as:%d: No operands.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidNumber:
        		fprintf(stdout,"%s.as:%d: Invalid number.\n",variablesPtr->filename,variablesPtr->lineCounter);
@@ -87,7 +87,13 @@ void printError(variables *variablesPtr) {
             fprintf(stdout,"%s.as:%d: clr,not,inc,dec,red can only use address methods 1,3.\n",variablesPtr->filename,variablesPtr->lineCounter);
             break;
         case InvalidOperand9:
-            fprintf(stdout,"Branching commands (jmp,bne,jsr) can only use adress methods 1,2.\n");
+            fprintf(stdout,"%s.as:%d: Branching commands (jmp,bne,jsr) can only use adress methods 1,2.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case ExtraOperand:
+            fprintf(stdout,"%s.as:%d: Extra Operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case MissingOperation:
+            fprintf(stdout,"%s.as:%d: Missing operation.\n",variablesPtr->filename,variablesPtr->lineCounter);
             break;
         case Valid:
             break;
@@ -105,6 +111,10 @@ void printExternal(FILE *f, wordNodePtr wordPtr) {
     fprintf(f,"%s %07lu\n",wordPtr->externLabel,wordPtr->address);
 }
 
+void printEmptyExternal(FILE *f, char *str) {
+    fprintf(f,"%s %07u\n",str,0);
+}
+
 void printEntry(FILE *f, labelTableNodePtr labelPtr) {
     fprintf(f,"%s %07lu\n",labelPtr->label,labelPtr->address);
 }
@@ -116,14 +126,19 @@ void createOutput(variables *variablesPtr) {
     char str[FILE_NAME_LEN + EXT_ENT_EXTENSION_LEN];
     wordNodePtr dataHptr = variablesPtr->dataHptr;
     wordNodePtr codeHptr = variablesPtr->codeHptr;
-    labelTableNodePtr labelPtr = variablesPtr->labelHptr;
+    labelTableNodePtr labelHptr = variablesPtr->labelHptr;
 
+    /* create object file with the title the lengths */
     sprintf(str,"%s.ob",variablesPtr->filename);
     file = fopen(str,"w");
     fprintf(file,"%7d %d\n",variablesPtr->IC - STARTING_IC,variablesPtr->DC);
-    while(codeHptr) {
-        if(strcmp(codeHptr->externLabel,""))
+
+    while(labelHptr) {
+        if(labelHptr->type == External) /* flag for external */
             hasExternal = True;
+        labelHptr = labelHptr->next;
+    }
+    while(codeHptr) {
         printWord(file,codeHptr);
         codeHptr = codeHptr->next;
     }
@@ -134,12 +149,31 @@ void createOutput(variables *variablesPtr) {
     }
     fclose(file);
 
+    /* reset the hptrs */
+    labelHptr = variablesPtr->labelHptr;
     codeHptr = variablesPtr->codeHptr;
     dataHptr = variablesPtr->dataHptr;
     
-    if(hasExternal) {
+    if(hasExternal) { /* if we have external */
         sprintf(str,"%s.ext",variablesPtr->filename);
         file = fopen(str,"w");
+        while(labelHptr) { /* if we have external that doesn't appear on the dataImage, write it as 0 address */
+            if(labelHptr->type == External) {
+                Bool found = False;
+                while(codeHptr && !found) {
+                    if(!strcmp(labelHptr->label,codeHptr->externLabel))
+                        found = True;
+                    codeHptr = codeHptr->next;
+                }
+                if(!found)
+                    printEmptyExternal(file,labelHptr->label);
+                codeHptr = variablesPtr->codeHptr;
+            }
+            labelHptr = labelHptr->next;
+        }
+        
+        labelHptr = variablesPtr->labelHptr;
+        codeHptr = variablesPtr->codeHptr;
         while(codeHptr) {
             if(strcmp(codeHptr->externLabel,""))
                 printExternal(file,codeHptr);
@@ -148,20 +182,20 @@ void createOutput(variables *variablesPtr) {
         fclose(file);
     }
 
-    while(labelPtr) {
-        if(labelPtr->type == Entry)
+    while(labelHptr) {
+        if(labelHptr->type == Entry)
             hasEntry = True;
-        labelPtr = labelPtr->next;
+        labelHptr = labelHptr->next;
     }
 
-    labelPtr = variablesPtr->labelHptr;
-    if(hasEntry) {
+    labelHptr = variablesPtr->labelHptr;
+    if(hasEntry) { /* if we have entry */
         sprintf(str,"%s.ent",variablesPtr->filename);
         file = fopen(str,"w");
-        while(labelPtr) {
-            if(labelPtr->type == Entry)
-                printEntry(file,labelPtr);
-            labelPtr = labelPtr->next;
+        while(labelHptr) {
+            if(labelHptr->type == Entry)
+                printEntry(file,labelHptr);
+            labelHptr = labelHptr->next;
         }
         fclose(file);
     }
