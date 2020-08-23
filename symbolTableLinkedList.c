@@ -37,10 +37,10 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
 void freeSymbolList(symbolTableNodePtr *hptr) {
     symbolTableNodePtr temp;
 
-    while (hptr) {
+    while (*hptr) {
         temp = (*hptr)->next;
-        free(hptr);
-        hptr = &temp;
+        free(*hptr);
+        *hptr = temp;
     }
 }
 
