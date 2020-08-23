@@ -102,11 +102,11 @@ void printWord(FILE *f,wordNodePtr wordPtr) {
 }
 
 void printExternal(FILE *f, wordNodePtr wordPtr) {
-    fprintf(f,"%s %07lu\n",wordPtr->externSymbol,wordPtr->address);
+    fprintf(f,"%s %07lu\n",wordPtr->externLabel,wordPtr->address);
 }
 
-void printEntry(FILE *f, symbolTableNodePtr symbolPtr) {
-    fprintf(f,"%s %07lu\n",symbolPtr->symbol,symbolPtr->address);
+void printEntry(FILE *f, labelTableNodePtr labelPtr) {
+    fprintf(f,"%s %07lu\n",labelPtr->label,labelPtr->address);
 }
 
 void createOutput(variables *variablesPtr) {
@@ -116,13 +116,13 @@ void createOutput(variables *variablesPtr) {
     char str[FILE_NAME_LEN + EXT_ENT_EXTENSION_LEN];
     wordNodePtr dataHptr = variablesPtr->dataHptr;
     wordNodePtr codeHptr = variablesPtr->codeHptr;
-    symbolTableNodePtr symbolPtr = variablesPtr->symbolHptr;
+    labelTableNodePtr labelPtr = variablesPtr->labelHptr;
 
     sprintf(str,"%s.ob",variablesPtr->filename);
     file = fopen(str,"w");
     fprintf(file,"%7d %d\n",variablesPtr->IC - STARTING_IC,variablesPtr->DC);
     while(codeHptr) {
-        if(strcmp(codeHptr->externSymbol,""))
+        if(strcmp(codeHptr->externLabel,""))
             hasExternal = True;
         printWord(file,codeHptr);
         codeHptr = codeHptr->next;
@@ -141,27 +141,27 @@ void createOutput(variables *variablesPtr) {
         sprintf(str,"%s.ext",variablesPtr->filename);
         file = fopen(str,"w");
         while(codeHptr) {
-            if(strcmp(codeHptr->externSymbol,""))
+            if(strcmp(codeHptr->externLabel,""))
                 printExternal(file,codeHptr);
             codeHptr = codeHptr->next;
         }
         fclose(file);
     }
 
-    while(symbolPtr) {
-        if(symbolPtr->type == Entry)
+    while(labelPtr) {
+        if(labelPtr->type == Entry)
             hasEntry = True;
-        symbolPtr = symbolPtr->next;
+        labelPtr = labelPtr->next;
     }
 
-    symbolPtr = variablesPtr->symbolHptr;
+    labelPtr = variablesPtr->labelHptr;
     if(hasEntry) {
         sprintf(str,"%s.ent",variablesPtr->filename);
         file = fopen(str,"w");
-        while(symbolPtr) {
-            if(symbolPtr->type == Entry)
-                printEntry(file,symbolPtr);
-            symbolPtr = symbolPtr->next;
+        while(labelPtr) {
+            if(labelPtr->type == Entry)
+                printEntry(file,labelPtr);
+            labelPtr = labelPtr->next;
         }
         fclose(file);
     }

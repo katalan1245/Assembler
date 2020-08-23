@@ -5,7 +5,7 @@ static int tempIC = 100;
 void secondPass(variables *variablesPtr) {
     Statement state;
     wordNodePtr wordPtr = variablesPtr->codeHptr;
-    char symbol[LABEL_LEN];
+    char label[LABEL_LEN];
     char *back;
     char arr[STRING_PARTS][LINE_LEN];
     /*wordPtr = variablesPtr->codeHptr;*/
@@ -23,10 +23,10 @@ void secondPass(variables *variablesPtr) {
 
         if(state == Comment || state == Empty)
             continue;
-        back = findSymbol(variablesPtr->line);
-        strcpy(symbol,back);
+        back = findLabel(variablesPtr->line);
+        strcpy(label,back);
         free(back);
-        if(strcmp(symbol,"")) {
+        if(strcmp(label,"")) {
             split(variablesPtr->line," \t",arr);
             strcpy(variablesPtr->line, strip(arr[REST]));
         }
@@ -37,7 +37,7 @@ void secondPass(variables *variablesPtr) {
             if(t == Entry) {
                 split(variablesPtr->line," \t",arr);
                 strcpy(arr[REST],strip(arr[REST]));
-                variablesPtr->status = addEntryProperty(variablesPtr->symbolHptr,arr[REST]);
+                variablesPtr->status = addEntryProperty(variablesPtr->labelHptr,arr[REST]);
             }
         }
         else if(state == Instruction) {
@@ -72,14 +72,14 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
             (*wordHptr) = (*wordHptr)->next;
             if(srcAdd == 1) {
                 int addr;
-                addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
+                addr = getLabelAddress(variablesPtr->labelHptr,arr[IMPORTANT]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
                 }
                 else {
-                    if(getSymbolType(variablesPtr->symbolHptr,arr[IMPORTANT]) == External) {
+                    if(getLabelType(variablesPtr->labelHptr,arr[IMPORTANT]) == External) {
                         (*wordHptr)->word.index = E;
-                        strcpy((*wordHptr)->externSymbol,arr[IMPORTANT]);
+                        strcpy((*wordHptr)->externLabel,arr[IMPORTANT]);
                     }
                     else
                         (*wordHptr)->word.index = (addr<<3) + R;
@@ -93,14 +93,14 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
             *wordHptr = (*wordHptr)->next;
             if(destAdd == 1) {
                 int addr;
-                addr = getSymbolAddress(variablesPtr->symbolHptr,arr[REST]);
+                addr = getLabelAddress(variablesPtr->labelHptr,arr[REST]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
                 }
                 else {
-                    if(getSymbolType(variablesPtr->symbolHptr,arr[REST]) == External) {
+                    if(getLabelType(variablesPtr->labelHptr,arr[REST]) == External) {
                         (*wordHptr)->word.index = E;
-                        strcpy((*wordHptr)->externSymbol,arr[REST]);
+                        strcpy((*wordHptr)->externLabel,arr[REST]);
                     }
                     else {
                         (*wordHptr)->word.index = (addr << 3) + R;
@@ -116,14 +116,14 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
             *wordHptr = (*wordHptr)->next;
             if(destAdd == 1) {
                 int addr;
-                addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
+                addr = getLabelAddress(variablesPtr->labelHptr,arr[IMPORTANT]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
                 }
                 else {
-                    if(getSymbolType(variablesPtr->symbolHptr,arr[IMPORTANT]) == External) {
+                    if(getLabelType(variablesPtr->labelHptr,arr[IMPORTANT]) == External) {
                         (*wordHptr)->word.index = E;
-                        strcpy((*wordHptr)->externSymbol,arr[IMPORTANT]);
+                        strcpy((*wordHptr)->externLabel,arr[IMPORTANT]);
                     }
                     else
                         (*wordHptr)->word.index = (addr<<3) + R;
@@ -133,12 +133,12 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
             else if(destAdd == 2) {
                 int addr;
                 strcpy(arr[IMPORTANT],arr[IMPORTANT]+1);
-                addr = getSymbolAddress(variablesPtr->symbolHptr,arr[IMPORTANT]);
+                addr = getLabelAddress(variablesPtr->labelHptr,arr[IMPORTANT]);
                 if(addr == -1) {
                     variablesPtr->status = MissingLabel;
                 }
                 else {
-                   if(getSymbolType(variablesPtr->symbolHptr,arr[IMPORTANT]) == External)
+                   if(getLabelType(variablesPtr->labelHptr,arr[IMPORTANT]) == External)
                         variablesPtr->status = ExternalBranching;
                     else {
                         int diff = addr - tempIC;
@@ -156,10 +156,10 @@ void secondInstruction(variables *variablesPtr,wordNodePtr *wordHptr) {
     *wordHptr = (*wordHptr)->next;
 }
 
-Status addEntryProperty(symbolTableNodePtr hptr,char *str) {
-    if(symbolInList(hptr, str)) {
+Status addEntryProperty(labelTableNodePtr hptr,char *str) {
+    if(labelInList(hptr, str)) {
         Type t;
-        t = getSymbolType(hptr, str);
+        t = getLabelType(hptr, str);
         if(t == External)
             return LabelEntryAndExtern;
         setType(hptr,str,Entry);

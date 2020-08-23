@@ -21,7 +21,7 @@ char *validToken(char*, char*);
 Type findEntryOrExternal(char*);
 DataOrString findDataOrString(char*);
 int findFromEnd(char*,char);
-char *findSymbol(char*);
+char *findLabel(char*);
 int strInArray(char*,char[STRING_PARTS][LINE_LEN]);
 
 #endif

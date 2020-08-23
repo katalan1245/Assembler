@@ -3,11 +3,11 @@
 #include "defaults.h"
 #include "firstPass.h"
 #include "inputAnalyze.h"
-#include "symbolTableLinkedList.h"
+#include "labelTableLinkedList.h"
 #include "printFunctions.h"
 #include "dataImage.h"
 
 void secondPass(variables*);
 void secondInstruction(variables*,wordNodePtr*);
-Status addEntryProperty(symbolTableNodePtr,char*);
+Status addEntryProperty(labelTableNodePtr,char*);
 #endif

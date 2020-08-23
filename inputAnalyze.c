@@ -231,8 +231,8 @@ int findFromEnd(char *str, char ch) {
     return -1;
 }
 
-/* return the symbol, "" if there is no symbol */
-char *findSymbol(char *str) {
+/* return the label, "" if there is no label */
+char *findLabel(char *str) {
     char *strCopy = (char*)  malloc(LINE_LEN);
     char arr[STRING_PARTS][LINE_LEN];
     strcpy(strCopy,str);

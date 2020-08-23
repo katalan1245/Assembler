@@ -1,4 +1,4 @@
-#include "symbolTableLinkedList.h"
+#include "labelTableLinkedList.h"
 #include "firstPass.h"
 #include "secondPass.h"
 
@@ -65,7 +65,7 @@ int main(int argc, char *argv[]) {
 }
 
 void freeVars(variables *variablesPtr) {
-    freeSymbolList(&variablesPtr->symbolHptr);
+    freeLabelList(&variablesPtr->labelHptr);
     freeList(&variablesPtr->codeHptr);
     freeList(&variablesPtr->dataHptr);
     free(variablesPtr);

@@ -50,14 +50,14 @@ typedef enum {LineTooLong=0, UnknownOperation=1, LabelAlreadyExist=2,
               InvalidOperand9=28, 
               Valid=100} Status;
 
-typedef struct node *symbolTableNodePtr;
+typedef struct node *labelTableNodePtr;
 typedef struct node {
-    char symbol[LABEL_LEN];
+    char label[LABEL_LEN];
     unsigned long address;
     Location location;
     Type type;
-    symbolTableNodePtr next;
-} symbolTableNode;
+    labelTableNodePtr next;
+} labelTableNode;
 
 typedef union {
     unsigned long index;
@@ -74,7 +74,7 @@ typedef union {
 
 typedef struct wordnode *wordNodePtr;
 typedef struct wordnode {
-    char externSymbol[LABEL_LEN];
+    char externLabel[LABEL_LEN];
     Word word;
     unsigned long address;
     wordNodePtr next;
@@ -87,10 +87,10 @@ typedef struct {
         char    filename[FILE_NAME_LEN];
         FILE *file;
         char line[LINE_LEN];
-        char symbol[LABEL_LEN];
+        char label[LABEL_LEN];
         Bool foundError;
         Status status;
-        symbolTableNodePtr symbolHptr;
+        labelTableNodePtr labelHptr;
         wordNodePtr dataHptr;
         wordNodePtr codeHptr;
 } variables;

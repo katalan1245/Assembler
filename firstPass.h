@@ -2,7 +2,7 @@
 #define FIRST_PASS_H
 #include "defaults.h"
 #include "inputAnalyze.h"
-#include "symbolTableLinkedList.h"
+#include "labelTableLinkedList.h"
 #include "printFunctions.h"
 #include "dataImage.h"
 
@@ -11,11 +11,11 @@ void handleInstruction(variables*,Word*);
 void fillTwoOperands(char*,Word*,variables*);
 void fillOneOperand(char*,Word*,variables*);
 void handleDirective(variables*,Word*);
-void addSymbol(variables*,Location);
+void addLabel(variables*,Location);
 int findAddressMethod(variables*,char*);
 Status checkNum(char*);
 void checkSyntaxValidLabel(variables*,char*,Bool);
-void checkSymbol(variables*,char*,Type);
+void checkLabel(variables*,char*,Type);
 void addNumberWord(variables*,char*);
 void addStringWord(variables*,char);
 void updateTables(variables*);

@@ -51,20 +51,20 @@ void handleInstruction(variables *variablesPtr,Word *wordPtr) {
     strcpy(lineCopy,variablesPtr->line);
     
     /* find the label */
-    back = findSymbol(lineCopy);
-    strcpy(variablesPtr->symbol,back);
+    back = findLabel(lineCopy);
+    strcpy(variablesPtr->label,back);
     free(back);
-    if(strcmp(variablesPtr->symbol,"")) {
-        checkSyntaxValidLabel(variablesPtr,variablesPtr->symbol,True);
+    if(strcmp(variablesPtr->label,"")) {
+        checkSyntaxValidLabel(variablesPtr,variablesPtr->label,True);
         if(variablesPtr->status != Valid)
             return;
 
-        checkSymbol(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
+        checkLabel(variablesPtr,variablesPtr->label,NoneEntOrExt);
         if(variablesPtr->status != Valid)
             return;
 
-        addSymbol(variablesPtr, CodeImage);
-        lineCopy+=strlen(variablesPtr->symbol)+1;
+        addLabel(variablesPtr, CodeImage);
+        lineCopy+=strlen(variablesPtr->label)+1;
         strcpy(lineCopy,strip(lineCopy));
     }
 
@@ -211,14 +211,14 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
     char lineCopy[LINE_LEN];
 	Type type;
     DataOrString varType;
-    Bool hasSymbol;
+    Bool hasLabel;
 	char arr[STRING_PARTS][LINE_LEN];
-	char symbolTemp[LINE_LEN];
+	char labelTemp[LINE_LEN];
     strcpy(lineCopy,variablesPtr->line);
     
-    strcpy(symbolTemp,findSymbol(lineCopy));
-    hasSymbol = !strcmp(symbolTemp,"") ? False : True;
-    if(hasSymbol) {
+    strcpy(labelTemp,findLabel(lineCopy));
+    hasLabel = !strcmp(labelTemp,"") ? False : True;
+    if(hasLabel) {
         split(lineCopy," \t",arr);
         strcpy(lineCopy,strip(arr[REST]));
     }
@@ -233,16 +233,16 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             variablesPtr->status = InvalidDirectiveCommand;
             return;
         }
-        if(hasSymbol) {
-            checkSyntaxValidLabel(variablesPtr,symbolTemp,True);
+        if(hasLabel) {
+            checkSyntaxValidLabel(variablesPtr,labelTemp,True);
             if(variablesPtr->status != Valid)
                 return;
-            strcpy(variablesPtr->symbol,symbolTemp);
-            checkSymbol(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
+            strcpy(variablesPtr->label,labelTemp);
+            checkLabel(variablesPtr,variablesPtr->label,NoneEntOrExt);
             if(variablesPtr->status != Valid)
                 return;
 
-            addSymbol(variablesPtr,DataImage);
+            addLabel(variablesPtr,DataImage);
         }
         
         if(varType == StringVar) {
@@ -315,37 +315,37 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
         return;
     }
     else {
-        symbolTableNode node;
+        labelTableNode node;
         checkSyntaxValidLabel(variablesPtr,arr[REST],False);
         if(variablesPtr->status != Valid)
             return;
 
-        checkSymbol(variablesPtr,arr[REST],External);
+        checkLabel(variablesPtr,arr[REST],External);
         if(variablesPtr->status != Valid)
             return;
-        strcpy(node.symbol,arr[REST]);
+        strcpy(node.label,arr[REST]);
         node.address = 0;
         node.location = DataImage;
         node.type = External;
-        addToList(&variablesPtr->symbolHptr,node);
+        addToList(&variablesPtr->labelHptr,node);
     }
     variablesPtr->status = Valid;
 }
 
-/* the the symbol from the variables ptr with the location loc to the list */
-void addSymbol(variables *variablesPtr, Location loc) {
-    symbolTableNode newSymbol;
-    strcpy(newSymbol.symbol,variablesPtr->symbol);
-    newSymbol.type = NoneEntOrExt;
+/* the the label from the variables ptr with the location loc to the list */
+void addLabel(variables *variablesPtr, Location loc) {
+    labelTableNode newLabel;
+    strcpy(newLabel.label,variablesPtr->label);
+    newLabel.type = NoneEntOrExt;
     if(loc == CodeImage) {
-        newSymbol.address = variablesPtr->IC;
-        newSymbol.location = CodeImage;
+        newLabel.address = variablesPtr->IC;
+        newLabel.location = CodeImage;
     }
     else {
-        newSymbol.address = variablesPtr->DC;
-        newSymbol.location = DataImage;
+        newLabel.address = variablesPtr->DC;
+        newLabel.location = DataImage;
     }
-    addToList(&variablesPtr->symbolHptr,newSymbol);
+    addToList(&variablesPtr->labelHptr,newLabel);
 }
 
 int findAddressMethod(variables *variablesPtr, char *str) {
@@ -421,11 +421,11 @@ void checkSyntaxValidLabel(variables *variablesPtr, char *sym, Bool checkSpace)
 	}
 }
 
-void checkSymbol(variables *variablesPtr,char *symbol,Type type) {
-    if(symbolInList(variablesPtr->symbolHptr,symbol)) {
-        Type symbolType;
-        symbolType = getSymbolType(variablesPtr->symbolHptr, symbol);
-        if(symbolType == NoneEntOrExt) {
+void checkLabel(variables *variablesPtr,char *label,Type type) {
+    if(labelInList(variablesPtr->labelHptr,label)) {
+        Type labelType;
+        labelType = getLabelType(variablesPtr->labelHptr, label);
+        if(labelType == NoneEntOrExt) {
             if(type == NoneEntOrExt)
                 variablesPtr->status = LabelAlreadyExist;
             else if(type == External)
@@ -434,7 +434,7 @@ void checkSymbol(variables *variablesPtr,char *symbol,Type type) {
                 return;
         }
 
-        else if(symbolType == External){
+        else if(labelType == External){
             if(type == NoneEntOrExt) {
                 variablesPtr->status = LabelDefinedAndExtern;
                 return;
@@ -469,13 +469,13 @@ void addStringWord(variables *variablesPtr, char ch) {
 }
 
 void updateTables(variables *variablesPtr) {
-    symbolTableNodePtr symbolHptr = variablesPtr->symbolHptr;
+    labelTableNodePtr labelHptr = variablesPtr->labelHptr;
     wordNodePtr wordHptr = variablesPtr->dataHptr;
-    while(symbolHptr) {
-        if(symbolHptr->location == DataImage && symbolHptr->type != External) {
-            symbolHptr->address += variablesPtr->IC;
+    while(labelHptr) {
+        if(labelHptr->location == DataImage && labelHptr->type != External) {
+            labelHptr->address += variablesPtr->IC;
         }
-        symbolHptr = symbolHptr->next;
+        labelHptr = labelHptr->next;
     }
 
     while(wordHptr) {
@@ -486,7 +486,7 @@ void updateTables(variables *variablesPtr) {
 
 void defaultValues(variables *variablesPtr) {
     variablesPtr->status = Valid;
-    strcpy(variablesPtr->symbol,"");
+    strcpy(variablesPtr->label,"");
 }
 
 void addEmptyWord(variables *variablesPtr) {

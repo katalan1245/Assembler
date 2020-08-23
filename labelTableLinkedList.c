@@ -1,17 +1,17 @@
 #include "defaults.h"
-#include "symbolTableLinkedList.h"
+#include "labelTableLinkedList.h"
 
-void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
-    symbolTableNodePtr p1, p2;
-    symbolTableNodePtr t;
+void addToList(labelTableNodePtr *hptr, labelTableNode node) {
+    labelTableNodePtr p1, p2;
+    labelTableNodePtr t;
 
-    t = (symbolTableNodePtr) malloc(sizeof(symbolTableNode));
+    t = (labelTableNodePtr) malloc(sizeof(labelTableNode));
     if(!t) {
         printf("Cannot Build List!\n");
         exit(0);
     }
 
-    strcpy(t->symbol, node.symbol);
+    strcpy(t->label, node.label);
     t->address = node.address;
     t->location = node.location;
     t->type = node.type;
@@ -35,8 +35,8 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
     }
 }
 
-void freeSymbolList(symbolTableNodePtr *hptr) {
-    symbolTableNodePtr temp;
+void freeLabelList(labelTableNodePtr *hptr) {
+    labelTableNodePtr temp;
 
     while (*hptr) {
         temp = (*hptr)->next;
@@ -45,38 +45,38 @@ void freeSymbolList(symbolTableNodePtr *hptr) {
     }
 }
 
-/* check if the symbol already exist in the symbol table*/
-Bool symbolInList(symbolTableNodePtr hptr, char *symbol) {
+/* check if the label already exist in the label table*/
+Bool labelInList(labelTableNodePtr hptr, char *label) {
     while(hptr) {
-        if(!strcmp(symbol,hptr->symbol))
+        if(!strcmp(label,hptr->label))
             return True;
         hptr = hptr->next;
     }
     return False;
 }
 
-/* return the type of the symbol, if not exist return None */
-Type getSymbolType(symbolTableNodePtr hptr, char *symbol) {
+/* return the type of the label, if not exist return None */
+Type getLabelType(labelTableNodePtr hptr, char *label) {
     while(hptr) {
-        if(!strcmp(symbol,hptr->symbol))
+        if(!strcmp(label,hptr->label))
             return hptr->type;
         hptr = hptr->next;
     }
     return NoneEntOrExt;
 }
 
-int getSymbolAddress(symbolTableNodePtr hptr, char *symbol) {
+int getLabelAddress(labelTableNodePtr hptr, char *label) {
     while(hptr) {
-        if(!strcmp(symbol,hptr->symbol))
+        if(!strcmp(label,hptr->label))
             return hptr->address;
         hptr = hptr->next;
     }
     return -1;
 }
 
-void setType(symbolTableNodePtr hptr, char *symbol, Type t) {
+void setType(labelTableNodePtr hptr, char *label, Type t) {
     while(hptr){
-        if(!strcmp(symbol,hptr->symbol)) {
+        if(!strcmp(label,hptr->label)) {
             hptr->type = t;
             return;
         }

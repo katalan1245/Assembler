@@ -13,7 +13,7 @@ void addWordToImage(wordNodePtr *hptr, Word word, unsigned long address) {
     /* copy fields from node to t */
     t->address = address;
     t->word = word;
-    strcpy(t->externSymbol,"");
+    strcpy(t->externLabel,"");
     t->next = NULL;
 
     p1 = *hptr;
