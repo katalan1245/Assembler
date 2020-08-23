@@ -15,6 +15,7 @@ void addToList(symbolTableNodePtr *hptr, symbolTableNode node) {
     t->address = node.address;
     t->location = node.location;
     t->type = node.type;
+    t->next = NULL;
 
     p1 = *hptr;
     p2 = NULL;

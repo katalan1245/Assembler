@@ -14,6 +14,7 @@ void addWordToImage(wordNodePtr *hptr, Word word, unsigned long address) {
     t->address = address;
     t->word = word;
     strcpy(t->externSymbol,"");
+    t->next = NULL;
 
     p1 = *hptr;
     /* get to the last node */
