@@ -9,12 +9,14 @@ int main(int argc, char *argv[]) {
         char filename[FILE_NAME_LEN + AS_OB_EXTENSION_LEN];
         variablesPtr = (variables*) malloc(sizeof(variables));
         sprintf(filename, "%s.as", argv[i]);
-        /*if(i==1)
+
+        if(i==1)
             sprintf(filename,"/home/raz/Desktop/Maman14/example.as");
         if(i==2)
             sprintf(filename,"/home/raz/Desktop/Maman14/valid.as");
-            */
+
         strcpy(variablesPtr->filename, argv[i]);
+        /*strcpy(variablesPtr->filename,filename);*/
 
         variablesPtr->file = fopen(filename, "r");
 

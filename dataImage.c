@@ -34,9 +34,9 @@ void freeList(wordNodePtr *hptr) {
     wordNodePtr p;
 
     while(*hptr) {
-        p = *hptr;
-        *hptr = (*hptr)->next;
-        free(p);
+        p = (*hptr)->next;;
+        free(*hptr);
+        *hptr = p;
     }
 }
 
