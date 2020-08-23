@@ -13,8 +13,8 @@
 #define LINE_LEN 82
 #define LABEL_LEN 31
 #define WORD_LEN 24
-#define MAX_24_SIGNED -8388608
-#define MIN_24_SIGNED 8388607
+#define MAX_24_SIGNED 8388607
+#define MIN_24_SIGNED -8388608
 #define MAX_24_UNSIGNED 16777215
 #define MAX_21_SIGNED 1048575
 #define MIN_21_SIGNED -1048576
@@ -36,15 +36,19 @@ typedef enum {Entry, External, NoneEntOrExt} Type;
 typedef enum {DataVar, StringVar, NoneDataOrStr} DataOrString;
 typedef enum {A=4,R=2,E=1} ARE;
 typedef enum {Invalid, Empty, Comment, Directive, Instruction} Statement;
-typedef enum {LineTooLong=0, UnknownOperation=1, SymbolAlreadyExist=2,
+typedef enum {LineTooLong=0, UnknownOperation=1, LabelAlreadyExist=2,
               TextAfterCommand=3, MissingOperand=4, InvalidOperand=5,
               InvalidLabel=6, InvalidNumber=7, MultipleDirectives=8,
               ReservedLabelName=9, LabelTooLong=10, LabelInvalidStart=11,
               LabelInvalidCharacters=12, MissingWhitespace=13,
-              SymbolEntryAndExtern=14, SymbolDefinedAndExtern=15,
+              LabelEntryAndExtern=14, LabelDefinedAndExtern=15,
               MissingLabel=16, InvalidDirectiveCommand=17,
               NoClosingQuotes=18, ExtraneousText=19, ExternalBranching=20,
-              Valid=100,Error=-1} Status;
+              NoOpeningQuotes=21, ExtraComma=22, NumOutOfMemory=23,
+              Invalid2AdressMethod=24, Invalid0AdressMethod=25,
+              InvalidLeaOperands=26, InvalidOperand5_12=27,
+              InvalidOperand9=28, 
+              Valid=100} Status;
 
 typedef struct node *symbolTableNodePtr;
 typedef struct node {

@@ -161,7 +161,7 @@ Status addEntryProperty(symbolTableNodePtr hptr,char *str) {
         Type t;
         t = getSymbolType(hptr, str);
         if(t == External)
-            return SymbolEntryAndExtern;
+            return LabelEntryAndExtern;
         setType(hptr,str,Entry);
         return Valid;
     }

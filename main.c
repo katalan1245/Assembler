@@ -2,6 +2,7 @@
 #include "firstPass.h"
 #include "secondPass.h"
 
+void freeVars(variables*);
 int main(int argc, char *argv[]) {
     int i;
     for(i=1;i<argc;i++) {
@@ -9,11 +10,12 @@ int main(int argc, char *argv[]) {
         char filename[FILE_NAME_LEN + AS_OB_EXTENSION_LEN];
         variablesPtr = (variables*) malloc(sizeof(variables));
         sprintf(filename, "%s.as", argv[i]);
-    /*
-        if(i==1)
-            sprintf(filename,"/home/raz/Desktop/Maman14/example.as");
+
+        /*if(i==1)
+            sprintf(filename,"/home/raz/Desktop/Maman14/badpath-datasize.as");
         if(i==2)
-            sprintf(filename,"/home/raz/Desktop/Maman14/valid.as"); */
+            sprintf(filename,"/home/raz/Desktop/Maman14/badpath-immedsize.as"); */
+
 
         strcpy(variablesPtr->filename, argv[i]);
         /*strcpy(variablesPtr->filename,filename);*/
@@ -38,24 +40,33 @@ int main(int argc, char *argv[]) {
 
         firstPass(variablesPtr);
         if (variablesPtr->foundError) {
+            printf("\n");
             fclose(variablesPtr->file);
+            freeVars(variablesPtr);
             continue;
         }
         printf("First Pass: Passed!\n");
         rewind(variablesPtr->file);
         secondPass(variablesPtr);
         if (variablesPtr->foundError) {
+            printf("\n");
             fclose(variablesPtr->file);
+            freeVars(variablesPtr);
             continue;
         }
         printf("Second Pass: Passed!\n");
         fclose(variablesPtr->file);
         createOutput(variablesPtr);
         printf("Output created!\n");
-        freeSymbolList(&variablesPtr->symbolHptr);
-        freeList(&variablesPtr->codeHptr);
-        freeList(&variablesPtr->dataHptr);
-        free(variablesPtr);
+        freeVars(variablesPtr);
+        printf("\n");
     }
     return 0;
+}
+
+void freeVars(variables *variablesPtr) {
+    freeSymbolList(&variablesPtr->symbolHptr);
+    freeList(&variablesPtr->codeHptr);
+    freeList(&variablesPtr->dataHptr);
+    free(variablesPtr);
 }

@@ -8,8 +8,8 @@ void printError(variables *variablesPtr) {
         case UnknownOperation:
         	fprintf(stdout,"%s.as:%d: Unknown operation.\n",variablesPtr->filename,variablesPtr->lineCounter);
         	break;
-       	case SymbolAlreadyExist:
-       		fprintf(stdout,"%s.as:%d: Symbol already exists.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       	case LabelAlreadyExist:
+       		fprintf(stdout,"%s.as:%d: Label already exists.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case TextAfterCommand: 
        		fprintf(stdout,"%s.as:%d: Text after command.\n",variablesPtr->filename,variablesPtr->lineCounter);
@@ -21,7 +21,7 @@ void printError(variables *variablesPtr) {
        		fprintf(stdout,"%s.as:%d: Invalid operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidLabel:
-       		fprintf(stdout,"%s.as:%d: Invalid label.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: Invalid Label.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case InvalidNumber:
        		fprintf(stdout,"%s.as:%d: Invalid number.\n",variablesPtr->filename,variablesPtr->lineCounter);
@@ -44,14 +44,14 @@ void printError(variables *variablesPtr) {
        	case MissingWhitespace:
        		fprintf(stdout,"%s.as:%d: Missing whitespace.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
-       	case SymbolEntryAndExtern:
-       		fprintf(stdout,"%s.as:%d: A symbol cannot be both entry and external.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       	case LabelEntryAndExtern:
+       		fprintf(stdout,"%s.as:%d: A label cannot be both entry and external.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
-       	case SymbolDefinedAndExtern:
-       		fprintf(stdout,"%s.as:%d: A symbol cannot be both external and defined in this file.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       	case LabelDefinedAndExtern:
+       		fprintf(stdout,"%s.as:%d: A label cannot be both external and defined in this file.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
        	case MissingLabel:
-       		fprintf(stdout,"%s.as:%d: Label doesn't exist.\n",variablesPtr->filename,variablesPtr->lineCounter);
+       		fprintf(stdout,"%s.as:%d: label doesn't exist.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
         case InvalidDirectiveCommand:
           fprintf(stdout,"%s.as:%d: Invalid directive command.\n",variablesPtr->filename,variablesPtr->lineCounter);
@@ -65,9 +65,30 @@ void printError(variables *variablesPtr) {
        	case ExternalBranching:
        		fprintf(stdout,"%s.as:%d: Trying to jump to external label using address method 2.\n",variablesPtr->filename,variablesPtr->lineCounter);
        		break;
-         case Error:
-          fprintf(stdout,"%s.as:%d: Error.\n",variablesPtr->filename,variablesPtr->lineCounter);
-          break;
+        case NoOpeningQuotes:
+            fprintf(stdout,"%s.as:%d: No opening quotes for the string.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case ExtraComma:
+            fprintf(stdout,"%s.as:%d: Extra comma.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case NumOutOfMemory:
+            fprintf(stdout,"%s.as:%d: The number doesn't fit inside the capacity of the memory (too big or too small).\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case Invalid2AdressMethod:
+            fprintf(stdout,"%s.as:%d: Address method 2 valid only in branching commands (jmp,bne,jsr).\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case Invalid0AdressMethod:
+            fprintf(stdout,"%s.as:%d: Can't use address method 0 on the second operand with this command.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case InvalidLeaOperands:
+            fprintf(stdout,"%s.as:%d: lea command can only use address method 1 for first operand and address methods 1,3 for second operand.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case InvalidOperand5_12:
+            fprintf(stdout,"%s.as:%d: clr,not,inc,dec,red can only use address methods 1,3.\n",variablesPtr->filename,variablesPtr->lineCounter);
+            break;
+        case InvalidOperand9:
+            fprintf(stdout,"Branching commands (jmp,bne,jsr) can only use adress methods 1,2.\n");
+            break;
         case Valid:
             break;
     }

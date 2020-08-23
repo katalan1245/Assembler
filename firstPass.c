@@ -59,7 +59,7 @@ void handleInstruction(variables *variablesPtr,Word *wordPtr) {
         if(variablesPtr->status != Valid)
             return;
 
-        checkDirectiveLabel(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
+        checkSymbol(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
         if(variablesPtr->status != Valid)
             return;
 
@@ -120,18 +120,18 @@ void fillTwoOperands(char *str, Word *word, variables *variablesPtr)
 	if(word->code.opcode < 3)
 	{
 		if(op1 == 2 || op2 == 2) {
-            variablesPtr->status = InvalidOperand;
+            variablesPtr->status = Invalid2AdressMethod;
 			return;
         }
         if(word->code.opcode % 2 == 0 && op2 == 0) {
-			variablesPtr->status = InvalidOperand;
+			variablesPtr->status = Invalid0AdressMethod;
             return;
         }
 	}
-	else
+	else /* lea command */
 	{
 		if(op1 != 1 || op2 % 2 ==0) {
-			variablesPtr->status = InvalidOperand;
+			variablesPtr->status = InvalidLeaOperands;
             return;
         }
 	}
@@ -177,12 +177,12 @@ void fillOneOperand(char *str,Word *word, variables *variablesPtr)
     }
 	op = findAddressMethod(variablesPtr,str);
 
-	if((word->code.opcode == 5 || word->code.opcode ==12) && op % 2 == 0)
-		variablesPtr->status = InvalidOperand;
-	if(word->code.opcode == 9 && op % 3 == 0)
-		variablesPtr->status = InvalidOperand;
-	if(word->code.opcode == 13 && op == 2)
-		variablesPtr->status = InvalidOperand;
+	if((word->code.opcode == 5 || word->code.opcode ==12) && op % 2 == 0) /* clr,inc,dec,not,red, can 1,3*/
+		variablesPtr->status = InvalidOperand5_12;
+	else if(word->code.opcode == 9 && op % 3 == 0) /* brnaching commands, not labels */
+		variablesPtr->status = InvalidOperand9;
+	else if(word->code.opcode == 13 && op == 2) /* prn, address 2 method */
+		variablesPtr->status = Invalid2AdressMethod;
 
     if(variablesPtr->status != Valid)
         return;
@@ -238,7 +238,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             if(variablesPtr->status != Valid)
                 return;
             strcpy(variablesPtr->symbol,symbolTemp);
-            checkDirectiveLabel(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
+            checkSymbol(variablesPtr,variablesPtr->symbol,NoneEntOrExt);
             if(variablesPtr->status != Valid)
                 return;
 
@@ -251,7 +251,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
             ind = findFromEnd(arr[REST], '\"');
             
             if(arr[REST][0] != '\"')
-                variablesPtr->status = InvalidOperand;
+                variablesPtr->status = NoOpeningQuotes;
             else if(ind == strlen(arr[REST]))
                 variablesPtr->status = NoClosingQuotes;
             else if(ind != 1)
@@ -281,22 +281,22 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
                 strcpy(arr[REST],strip(arr[REST]));
 
                 if(!strcmp(arr[REST],"") && tokExist == DELIM_EXIST) {
-                    variablesPtr->status = InvalidOperand;
+                    variablesPtr->status = ExtraComma;
                     return;
                 }
 
                 if(!strcmp(arr[IMPORTANT],"")) {
-                	variablesPtr->status = InvalidOperand;
+                	variablesPtr->status = MissingOperand;
                     return;
                 }
                 if(checkNum(arr[IMPORTANT]) != Valid) {
-                    variablesPtr->status = InvalidOperand;
+                    variablesPtr->status = InvalidNumber;
                     return;
                 } 
 
                 num = strtol(arr[IMPORTANT],NULL,10);
-                if(num > 8388607 || num < -8388608) {
-                    variablesPtr->status = InvalidOperand;
+                if(num > MAX_24_SIGNED || num < MIN_24_SIGNED) {
+                    variablesPtr->status = NumOutOfMemory;
                     return;
                 }
                 if(num < 0)
@@ -320,7 +320,7 @@ void handleDirective(variables *variablesPtr, Word *wordPtr) {
         if(variablesPtr->status != Valid)
             return;
 
-        checkDirectiveLabel(variablesPtr,arr[REST],External);
+        checkSymbol(variablesPtr,arr[REST],External);
         if(variablesPtr->status != Valid)
             return;
         strcpy(node.symbol,arr[REST]);
@@ -357,7 +357,7 @@ int findAddressMethod(variables *variablesPtr, char *str) {
             long num = strtol(str,&ptr,10);
             if(*ptr != '\0')
                 return -1; /* invalid number */
-            if(num > 8388607 || num < -8388608)
+            if(num > MAX_21_SIGNED || num < MIN_21_SIGNED)
     			return -1; /* invalid number */
             return 0;
     	}
@@ -421,24 +421,26 @@ void checkSyntaxValidLabel(variables *variablesPtr, char *sym, Bool checkSpace)
 	}
 }
 
-void checkDirectiveLabel(variables *variablesPtr,char *symbol,Type type) {
+void checkSymbol(variables *variablesPtr,char *symbol,Type type) {
     if(symbolInList(variablesPtr->symbolHptr,symbol)) {
         Type symbolType;
         symbolType = getSymbolType(variablesPtr->symbolHptr, symbol);
         if(symbolType == NoneEntOrExt) {
-            if(type != Entry) {
-                variablesPtr->status = InvalidLabel;
+            if(type == NoneEntOrExt)
+                variablesPtr->status = LabelAlreadyExist;
+            else if(type == External)
+                variablesPtr->status = LabelDefinedAndExtern;
+            if(variablesPtr->status != Valid)
                 return;
-            }
         }
 
         else if(symbolType == External){
             if(type == NoneEntOrExt) {
-                variablesPtr->status = SymbolDefinedAndExtern;
+                variablesPtr->status = LabelDefinedAndExtern;
                 return;
             }
             if(type == Entry) {
-                variablesPtr->status = SymbolEntryAndExtern;
+                variablesPtr->status = LabelEntryAndExtern;
                 return;
             }
         }

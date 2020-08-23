@@ -15,7 +15,7 @@ void addSymbol(variables*,Location);
 int findAddressMethod(variables*,char*);
 Status checkNum(char*);
 void checkSyntaxValidLabel(variables*,char*,Bool);
-void checkDirectiveLabel(variables*,char*,Type);
+void checkSymbol(variables*,char*,Type);
 void addNumberWord(variables*,char*);
 void addStringWord(variables*,char);
 void updateTables(variables*);
