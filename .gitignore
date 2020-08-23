@@ -16,3 +16,6 @@ cmake-build-debug/
 assembly
 14/
 *.as
+*.ob
+*.ext
+*.ent
